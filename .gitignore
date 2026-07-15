@@ -1,0 +1,89 @@
+# --- Secrets & local env (never commit) ---
+.env
+.env.*
+!.env.example
+!**/.env.example
+
+# --- Python / Backend ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+ENV/
+*.egg
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+share/python-wheels/
+*.manifest
+*.spec
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Test & type-check caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+.hypothesis/
+
+# --- Node / Frontend ---
+node_modules/
+frontend/dist/
+dist/
+.vite/
+*.tsbuildinfo
+
+# Vite / npm local env overrides
+frontend/.env
+frontend/.env.local
+frontend/.env.*.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# --- OS ---
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# --- Editors & IDEs ---
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# --- Cursor ---
+.cursor/
+
+# --- Misc build / temp ---
+*.tmp
+*.temp
+.cache/
+coverage/
+build/
+
+# Accidental npm init in backend (Python project)
+backend/package-lock.json
