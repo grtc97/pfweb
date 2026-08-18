@@ -56,56 +56,57 @@ button {
 .app-layout {
     display: grid;
     grid-template-columns: minmax(0, 65fr) minmax(0, 35fr);
+    grid-template-rows: auto auto;
     min-height: 100vh;
-    height: 100vh;
     gap: 0;
 }
 
-.sidebar {
-    grid-column: 2;
+.site-nav-bar {
+    grid-column: 1 / -1;
     grid-row: 1;
-    align-self: end;
+    display: flex;
+    justify-content: center;
+    padding: 16px 24px;
+    border: 1px solid #e0e0e0;
+    background: #ffffff;
+    margin-bottom: 32px;
+}
+
+.sidebar {
+    /* Pinned to the viewport (not the grid) so it stays put while the page
+       itself scrolls — see .main-content below for why. Right/bottom/width
+       reproduce the same visual size and position it had as a bottom-aligned
+       grid item in the (now-unused) right-hand column. */
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    width: 35vw;
     background: #ffffff;
     border: var(--chatbot-border-width) solid var(--chatbot-border);
     padding: 0;
-    width: 100%;
     height: 75vh;
     overflow: hidden;
     box-shadow: var(--shadow);
     display: flex;
     flex-direction: column;
+    z-index: 10;
 }
 
 .main-content {
     grid-column: 1;
-    grid-row: 1;
+    grid-row: 2;
     padding: 48px 120px;
     max-width: 100%;
-    /* A generic `main { margin: 0 auto; ... }` rule elsewhere in this file
-       (written for a different, single-column context) otherwise leaves
-       .main-content with auto side margins and no explicit width. With CSS
-       Grid, auto margins make a grid item shrink-to-fit its content and
-       center itself instead of stretching to fill its column — so each
-       page's box ended up a different width/position depending on how wide
-       its own content happened to be. Pinning width/margin here forces every
-       page to fill the same column consistently. */
     width: 100%;
     margin: 0;
-    /* That same generic `main` rule also sets `display: grid`, which stretches
-       .page-header/.footer/the routed content to fill 100vh as grid rows —
-       on a short page like Blog, the leftover vertical space gets absorbed
-       into .page-header's row, pushing its border-bottom far below the
-       location text. Overriding back to block flow makes every element's
-       height content-driven (via its own margins) instead of grid-stretched,
-       so the header looks the same regardless of how much content follows. */
     display: block;
-    height: 100vh;
-    overflow-y: auto;
-    /* Always reserves the scrollbar's width, even on pages short enough that
-       nothing actually scrolls — otherwise the content area (and everything
-       in it, including the nav) is a scrollbar's-width wider on short pages
-       than on tall ones, so switching pages visibly shifts the layout. */
-    scrollbar-gutter: stable;
+    min-height: 100vh;
+    /* The portfolio no longer scrolls in its own inner box — the whole page
+       scrolls instead, so the browser's native scrollbar renders at the true
+       right edge of the window (the common portfolio-site pattern) rather
+       than at the boundary between the portfolio and the chatbot column. The
+       chatbot stays visually in place regardless, since it's viewport-fixed
+       (see .sidebar) rather than living inside this scrolling box. */
 }
 
 .site-footer {
@@ -124,17 +125,6 @@ button {
     gap: 12px;
     padding: 24px;
     text-align: center;
-}
-
-.topbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    border-radius: 24px;
-    padding: 20px 24px;
-    margin: 0 auto 20px;
-    max-width: 1200px;
 }
 
 .page-header {
@@ -160,7 +150,7 @@ button {
     flex-wrap: wrap;
     justify-content: center;
     gap: 12px;
-    margin-bottom: 32px;
+    max-width: 100%;
 }
 
 .site-nav-link {
@@ -203,23 +193,10 @@ button {
     align-items: flex-start;
 }
 
-.section-header .section-label {
-    min-width: 40px;
-    font-size: 0.85rem;
-    color: var(--accent-strong);
-}
-
 .section-header h2 {
     margin: 0;
     font-size: 1.8rem;
     line-height: 1.2;
-}
-
-.section-content {
-    color: var(--muted);
-    line-height: 1.7;
-    max-width: 800px;
-    text-align: justify;
 }
 
 .summary-list {
@@ -227,7 +204,7 @@ button {
     padding-left: 20px;
     color: var(--muted);
     line-height: 1.7;
-    max-width: 800px;
+    text-align: justify;
 }
 
 .summary-list li + li {
@@ -271,7 +248,6 @@ button {
     white-space: nowrap;
 }
 
-.institution,
 .company,
 .degree {
     margin: 0;
@@ -333,6 +309,7 @@ button {
 .project-card h4 {
     margin: 0;
     font-size: 1.1rem;
+    line-height: 1.08;
 }
 
 .project-card p {
@@ -340,6 +317,7 @@ button {
     color: var(--muted);
     font-size: 0.95rem;
     line-height: 1.6;
+    text-align: justify;
 }
 
 .tags {
@@ -366,6 +344,7 @@ button {
     margin: 0;
     color: var(--muted);
     line-height: 1.7;
+    text-align: justify;
 }
 
 .contact-links {
@@ -393,18 +372,24 @@ button {
 .contact-form {
     display: grid;
     gap: 16px;
-    margin-top: 8px;
-}
-
-.contact-form-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 16px;
+    /* More breathing room between this box and the LinkedIn/GitHub links
+       above it. */
+    margin-top: 40px;
+    padding: 24px;
+    border: 1px solid #ddd;
+    border-radius: 16px;
+    background: var(--card);
 }
 
 .contact-field {
     display: grid;
     gap: 8px;
+}
+
+.contact-field-warning {
+    margin: 0;
+    color: #b42318;
+    font-size: 0.82rem;
 }
 
 .contact-field span {
@@ -458,34 +443,7 @@ button {
     color: #8a1f1f;
 }
 
-.topbar h1,
-.hero h2,
-.section-block h3,
-.contact-card h3,
-.project-card h4 {
-    margin: 0;
-    line-height: 1.08;
-}
-
-.topbar h1 {
-    font-size: clamp(1.4rem, 2vw, 2rem);
-}
-
-.eyebrow,
-.section-label,
-.hero-kicker,
-.status-pill {
-    margin: 0 0 8px;
-    text-transform: uppercase;
-    letter-spacing: 0.16em;
-    font-size: 0.74rem;
-    color: var(--accent-strong);
-}
-
-.ghost-button,
-.primary-button,
-.secondary-button,
-.chatbot-launcher {
+.primary-button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -494,149 +452,13 @@ button {
     padding: 12px 18px;
     cursor: pointer;
     transition: transform 160ms ease, opacity 160ms ease, background-color 160ms ease;
-}
-
-.ghost-button,
-.secondary-button {
-    border: 1px solid #ddd;
-    background: #f9f9f9;
-    color: var(--text);
-}
-
-.primary-button,
-.chatbot-launcher {
     color: #ffffff;
     background: linear-gradient(135deg, #d9a84e 0%, #c7963a 100%);
     font-weight: 700;
 }
 
-.primary-button:hover,
-.secondary-button:hover,
-.ghost-button:hover,
-.chatbot-launcher:hover {
+.primary-button:hover {
     transform: translateY(-1px);
-}
-
-main {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: grid;
-    gap: 20px;
-}
-
-.hero {
-    display: grid;
-    grid-template-columns: minmax(0, 1.5fr) minmax(260px, 0.9fr);
-    gap: 20px;
-    border-radius: 30px;
-    padding: 28px;
-}
-
-.hero-copy h2 {
-    font-size: clamp(2.2rem, 5vw, 4.8rem);
-    max-width: 11ch;
-}
-
-.hero-text,
-.card p,
-.project-card p,
-.contact-note {
-    color: var(--muted);
-    line-height: 1.65;
-}
-
-.hero-actions,
-.contact-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin-top: 24px;
-}
-
-.hero-panel {
-    display: grid;
-    gap: 14px;
-    align-content: center;
-}
-
-.stat {
-    display: grid;
-    gap: 4px;
-    padding: 18px;
-    border-radius: 18px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.stat span {
-    color: var(--muted);
-    font-size: 0.9rem;
-}
-
-.stat strong {
-    font-size: 1.1rem;
-}
-
-.section-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 20px;
-}
-
-.card {
-    border-radius: 26px;
-    padding: 24px;
-}
-
-.bullet-list {
-    margin: 18px 0 0;
-    padding-left: 20px;
-    color: var(--muted);
-}
-
-.bullet-list li+li {
-    margin-top: 10px;
-}
-
-.tag-cloud {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 18px;
-}
-
-.tag {
-    border-radius: 999px;
-    padding: 10px 14px;
-    background: rgba(224, 181, 90, 0.14);
-    border: 1px solid rgba(224, 181, 90, 0.2);
-}
-
-.tag-soft {
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(255, 255, 255, 0.08);
-}
-
-.section-block h3 {
-    font-size: clamp(1.4rem, 2vw, 2rem);
-}
-
-.project-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 16px;
-    margin-top: 18px;
-}
-
-.project-card {
-    border-radius: 20px;
-    padding: 18px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.contact-card {
-    margin-bottom: 120px;
 }
 
 .chatbot-shell {
@@ -733,9 +555,9 @@ main {
     align-content: start;
 }
 
-/* The open chat window is always exactly 70vh — it never grows beyond that
+/* The open chat window is always exactly 75vh — it never grows beyond that
    (e.g. via maximize). Minimizing is the one case allowed to shrink it below
-   70vh, down to just the header, so the minimize button visibly collapses
+   75vh, down to just the header, so the minimize button visibly collapses
    the window instead of leaving an empty gray box at full height. */
 .sidebar:has(.chatbot-minimized) {
     height: auto;
@@ -774,6 +596,8 @@ main {
     color: #2d7a2d;
     font-weight: 600;
     font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
 }
 
 .status-pill.status-checking {
@@ -882,65 +706,25 @@ main {
     cursor: not-allowed;
 }
 
-@media (max-width: 900px) {
-
-    .hero,
-    .section-grid,
-    .project-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .hero-copy h2 {
-        max-width: none;
-    }
-
-    .contact-form-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
 @media (max-width: 1024px) {
     .app-layout {
         grid-template-columns: 1fr;
-        height: auto;
         min-height: 100vh;
     }
 
     .main-content {
         grid-column: 1;
-        grid-row: 1;
-        height: auto;
-        min-height: 100vh;
+        grid-row: 2;
         padding: 40px 56px 75vh;
     }
 
     .sidebar {
-        grid-column: 1;
-        grid-row: 1;
-        position: fixed;
-        right: 0;
-        bottom: 0;
         left: 0;
         width: 100%;
-        height: 75vh;
-        border: var(--chatbot-border-width) solid var(--chatbot-border);
-        box-shadow: var(--shadow);
-        z-index: 10;
     }
 }
 
 @media (max-width: 640px) {
-    .page-shell {
-        padding: 16px;
-    }
-
-    .topbar,
-    .card,
-    .hero {
-        padding: 18px;
-        border-radius: 20px;
-    }
-
     .main-content {
         padding: 32px 36px 70vh;
     }

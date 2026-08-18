@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -63,5 +63,47 @@ describe('ContactForm', () => {
 
         expect(await screen.findByText('Unable to send your message right now.')).toBeInTheDocument()
         expect(screen.getByPlaceholderText('Your name')).toHaveValue('Jane Doe')
+    })
+
+    it('renders Name, Email, Subject, and Message stacked vertically in that order', () => {
+        render(<ContactForm />)
+
+        const fieldNames = screen.getAllByRole('textbox').map((el) => el.getAttribute('name'))
+        expect(fieldNames).toEqual(['name', 'email', 'subject', 'message'])
+    })
+
+    it('does not warn at or under the 50-character limit, but warns as soon as Name exceeds it', () => {
+        render(<ContactForm />)
+        const nameInput = screen.getByPlaceholderText('Your name')
+
+        fireEvent.change(nameInput, { target: { value: 'a'.repeat(50) } })
+        expect(screen.queryByText(/cannot exceed/i)).not.toBeInTheDocument()
+
+        fireEvent.change(nameInput, { target: { value: 'a'.repeat(51) } })
+
+        expect(screen.getByText('Name cannot exceed 50 characters.')).toBeInTheDocument()
+        // The limit is enforced via a warning, not a native maxLength that
+        // silently truncates input — the full over-limit value must still land.
+        expect(nameInput).toHaveValue('a'.repeat(51))
+    })
+
+    it('warns when Message exceeds 1000 characters and disables the submit button until it is fixed', async () => {
+        const user = userEvent.setup()
+        render(<ContactForm />)
+        await fillForm(user)
+
+        const submitButton = screen.getByRole('button', { name: /send message/i })
+        expect(submitButton).toBeEnabled()
+
+        const messageInput = screen.getByPlaceholderText('Write your message here...')
+        fireEvent.change(messageInput, { target: { value: 'a'.repeat(1001) } })
+
+        expect(screen.getByText('Message cannot exceed 1000 characters.')).toBeInTheDocument()
+        expect(submitButton).toBeDisabled()
+
+        fireEvent.change(messageInput, { target: { value: 'a'.repeat(1000) } })
+
+        expect(screen.queryByText(/cannot exceed/i)).not.toBeInTheDocument()
+        expect(submitButton).toBeEnabled()
     })
 })

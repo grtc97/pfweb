@@ -73,7 +73,7 @@ describe('App', () => {
         expect(screen.getByText('Data Scientist & AI Engineer')).toBeInTheDocument()
     })
 
-    it('shows a copyright notice at the bottom with the current year and portfolio name', async () => {
+    it('shows a copyright notice at the bottom with the current year and portfolio name, without "All rights reserved"', async () => {
         mockedPortfolioService.loadPortfolio.mockResolvedValue(SAMPLE_PORTFOLIO)
 
         renderApp()
@@ -81,7 +81,8 @@ describe('App', () => {
         await screen.findByRole('heading', { name: 'Ganesh R' })
 
         const currentYear = new Date().getFullYear().toString()
-        expect(screen.getByText(new RegExp(`${currentYear}.*Ganesh R.*All rights reserved`))).toBeInTheDocument()
+        expect(screen.getByText(new RegExp(`${currentYear}.*Ganesh R`))).toBeInTheDocument()
+        expect(screen.queryByText(/all rights reserved/i)).not.toBeInTheDocument()
     })
 
     it('shows an error state with a retry button when loading fails, and retries on click', async () => {
@@ -115,7 +116,7 @@ describe('App', () => {
             expect(screen.queryByRole('heading', { name: 'Blog' })).not.toBeInTheDocument()
         })
 
-        it('navigates to Experience (Skills, Experience, Projects, Honors & Awards) via the nav link', async () => {
+        it('navigates to Experience (Experience, Skills, Projects, Honors & Awards, in that order) via the nav link', async () => {
             const user = userEvent.setup()
             renderApp('/')
 
@@ -127,6 +128,15 @@ describe('App', () => {
             expect(screen.getByRole('heading', { name: 'Projects' })).toBeInTheDocument()
             expect(screen.getByRole('heading', { name: 'Honors & Awards' })).toBeInTheDocument()
             expect(screen.queryByRole('heading', { name: 'About Me' })).not.toBeInTheDocument()
+
+            // Skills must come after Experience, not before.
+            const headingOrder = screen
+                .getAllByRole('heading', { level: 2 })
+                .map((heading) => heading.textContent)
+            const experienceIndex = headingOrder.indexOf('Experience')
+            const skillsIndex = headingOrder.indexOf('Skills')
+            expect(experienceIndex).toBeGreaterThanOrEqual(0)
+            expect(skillsIndex).toBeGreaterThan(experienceIndex)
         })
 
         it('navigates to Blog, showing the empty-state placeholder', async () => {
@@ -150,6 +160,22 @@ describe('App', () => {
             expect(await screen.findByRole('heading', { name: 'Contact Me' })).toBeInTheDocument()
             expect(screen.getByRole('link', { name: 'LinkedIn' })).toBeInTheDocument()
             expect(screen.getByRole('button', { name: /send message/i })).toBeInTheDocument()
+        })
+
+        it('renders the nav as a full-width bar above the portfolio, not nested inside it', async () => {
+            const { container } = renderApp('/')
+            await screen.findByRole('heading', { name: 'About Me' })
+
+            const navBar = container.querySelector('.site-nav-bar')
+            const appLayout = container.querySelector('.app-layout')
+            const mainContent = container.querySelector('.main-content')
+
+            expect(navBar).not.toBeNull()
+            // A direct child of .app-layout (sibling of .main-content/.sidebar),
+            // not nested inside the portfolio column, so it can span the full
+            // width of the site rather than just the portfolio's 65% column.
+            expect(navBar!.parentElement).toBe(appLayout)
+            expect(mainContent!.contains(navBar)).toBe(false)
         })
 
         it('marks the active nav link for the current page', async () => {

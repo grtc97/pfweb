@@ -13,19 +13,6 @@ export function ExperiencePage({ portfolio }: ExperiencePageProps) {
 
     return (
         <>
-            <section id="skills" className="section-card">
-                <div className="section-header">
-                    <h2>Skills</h2>
-                </div>
-                <div className="skills-grid">
-                    {portfolio.skills.map((skill) => (
-                        <div key={skill} className="skill-tag">
-                            {skill}
-                        </div>
-                    ))}
-                </div>
-            </section>
-
             <section id="experience" className="section-card">
                 <div className="section-header">
                     <h2>Experience</h2>
@@ -44,6 +31,19 @@ export function ExperiencePage({ portfolio }: ExperiencePageProps) {
                                     <li key={highlight}>{highlight}</li>
                                 ))}
                             </ul>
+                        </div>
+                    ))}
+                </div>
+            </section>
+
+            <section id="skills" className="section-card">
+                <div className="section-header">
+                    <h2>Skills</h2>
+                </div>
+                <div className="skills-grid">
+                    {portfolio.skills.map((skill) => (
+                        <div key={skill} className="skill-tag">
+                            {skill}
                         </div>
                     ))}
                 </div>

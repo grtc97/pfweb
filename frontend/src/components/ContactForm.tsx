@@ -16,6 +16,24 @@ const EMPTY_FORM: FormState = {
     message: '',
 }
 
+const FIELD_LIMITS: Record<keyof FormState, number> = {
+    name: 50,
+    email: 50,
+    subject: 50,
+    message: 1000,
+}
+
+const FIELD_LABELS: Record<keyof FormState, string> = {
+    name: 'Name',
+    email: 'Email',
+    subject: 'Subject',
+    message: 'Message',
+}
+
+function isWithinLimit(field: keyof FormState, value: string): boolean {
+    return value.length <= FIELD_LIMITS[field]
+}
+
 export function ContactForm() {
     const [form, setForm] = useState<FormState>(EMPTY_FORM)
     const [isSubmitting, setIsSubmitting] = useState(false)
@@ -27,6 +45,7 @@ export function ContactForm() {
             form.email.trim().length > 0 &&
             form.subject.trim().length > 0 &&
             form.message.trim().length > 0 &&
+            (Object.keys(FIELD_LIMITS) as Array<keyof FormState>).every((field) => isWithinLimit(field, form[field])) &&
             !isSubmitting,
         [form, isSubmitting],
     )
@@ -66,35 +85,46 @@ export function ContactForm() {
         }
     }
 
+    const renderLimitWarning = (field: keyof FormState) => {
+        if (isWithinLimit(field, form[field])) {
+            return null
+        }
+        return (
+            <p className="contact-field-warning" role="alert">
+                {FIELD_LABELS[field]} cannot exceed {FIELD_LIMITS[field]} characters.
+            </p>
+        )
+    }
+
     return (
         <form className="contact-form" onSubmit={handleSubmit} noValidate={false}>
-            <div className="contact-form-grid">
-                <label className="contact-field">
-                    <span>Name</span>
-                    <input
-                        type="text"
-                        name="name"
-                        value={form.name}
-                        onChange={(event) => updateField('name', event.target.value)}
-                        placeholder="Your name"
-                        required
-                        autoComplete="name"
-                    />
-                </label>
+            <label className="contact-field">
+                <span>Name</span>
+                <input
+                    type="text"
+                    name="name"
+                    value={form.name}
+                    onChange={(event) => updateField('name', event.target.value)}
+                    placeholder="Your name"
+                    required
+                    autoComplete="name"
+                />
+                {renderLimitWarning('name')}
+            </label>
 
-                <label className="contact-field">
-                    <span>Email</span>
-                    <input
-                        type="email"
-                        name="email"
-                        value={form.email}
-                        onChange={(event) => updateField('email', event.target.value)}
-                        placeholder="you@example.com"
-                        required
-                        autoComplete="email"
-                    />
-                </label>
-            </div>
+            <label className="contact-field">
+                <span>Email</span>
+                <input
+                    type="email"
+                    name="email"
+                    value={form.email}
+                    onChange={(event) => updateField('email', event.target.value)}
+                    placeholder="you@example.com"
+                    required
+                    autoComplete="email"
+                />
+                {renderLimitWarning('email')}
+            </label>
 
             <label className="contact-field">
                 <span>Subject</span>
@@ -106,6 +136,7 @@ export function ContactForm() {
                     placeholder="What is this about?"
                     required
                 />
+                {renderLimitWarning('subject')}
             </label>
 
             <label className="contact-field">
@@ -118,6 +149,7 @@ export function ContactForm() {
                     rows={5}
                     required
                 />
+                {renderLimitWarning('message')}
             </label>
 
             {feedback ? (

@@ -1,12 +1,21 @@
 import smtplib
 import socket
 from email.message import EmailMessage
+from email.utils import formataddr
 
 from app.core.config import settings
 
 
 class EmailServiceError(Exception):
     """Raised when sending the contact-form email fails in an expected way."""
+
+
+def _display_name(name: str) -> str:
+    # `name` is visitor-supplied and now lands in a header (not just the body),
+    # so collapse any embedded newlines/control whitespace before it's used —
+    # otherwise a crafted name could break header folding or inject content.
+    sanitized = " ".join(name.split())
+    return sanitized or "Portfolio visitor"
 
 
 def send_contact_email(*, name: str, email: str, subject: str, message: str) -> None:
@@ -18,7 +27,11 @@ def send_contact_email(*, name: str, email: str, subject: str, message: str) -> 
 
     mail = EmailMessage()
     mail["Subject"] = f"[Portfolio Contact] {subject}"
-    mail["From"] = settings.smtp_user
+    # Shows the visitor's name in the "From" display (e.g. `"Jane Doe (via
+    # portfolio)" <smtp_user>`), while the actual sending address stays
+    # smtp_user — email providers reject/flag a "From" address that isn't the
+    # authenticated account, so the address itself can't be the visitor's.
+    mail["From"] = formataddr((f"{_display_name(name)} (via portfolio)", settings.smtp_user))
     mail["To"] = settings.contact_email_to
     mail["Reply-To"] = email
     mail.set_content(

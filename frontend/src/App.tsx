@@ -68,20 +68,23 @@ export default function App() {
 
     return (
         <div className="app-layout">
+            <nav className="site-nav-bar" aria-label="Main">
+                <div className="site-nav">
+                    {NAV_LINKS.map((link) => (
+                        <NavLink
+                            key={link.to}
+                            to={link.to}
+                            end={link.end}
+                            className={({ isActive }) => `site-nav-link${isActive ? ' site-nav-link-active' : ''}`}
+                        >
+                            {link.label}
+                        </NavLink>
+                    ))}
+                </div>
+            </nav>
+
             <main className="main-content">
                 <header className="page-header">
-                    <nav className="site-nav" aria-label="Main">
-                        {NAV_LINKS.map((link) => (
-                            <NavLink
-                                key={link.to}
-                                to={link.to}
-                                end={link.end}
-                                className={({ isActive }) => `site-nav-link${isActive ? ' site-nav-link-active' : ''}`}
-                            >
-                                {link.label}
-                            </NavLink>
-                        ))}
-                    </nav>
                     <div className="header-content">
                         <h1>{portfolio.name}</h1>
                         <p className="headline">{portfolio.title}</p>
@@ -97,7 +100,7 @@ export default function App() {
                 </Routes>
 
                 <footer className="site-footer">
-                    <p>&copy; {new Date().getFullYear()} {portfolio.name}. All rights reserved.</p>
+                    <p>&copy; {new Date().getFullYear()} {portfolio.name}</p>
                 </footer>
             </main>
 
