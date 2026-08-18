@@ -81,6 +81,9 @@ Desktop.ini
 # --- Claude Code local tooling config ---
 .claude/
 
+# --- Personal reference docs (not for public repo) ---
+DOCUMENTATION.md
+
 # --- Misc build / temp ---
 *.tmp
 *.temp
