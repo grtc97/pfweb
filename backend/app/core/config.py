@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     environment: str = "development"
     openai_api_key: str = ""
     openai_model: str = "gpt-4o-mini"
-    portfolio_content_path: str = "app/content/portfolio.md"
+    chat_content_path: str = "app/content/chatcontent.md"
     cors_origins: list[str] = [
         "http://localhost:5173",
         "http://localhost:5174",
@@ -22,6 +22,13 @@ class Settings(BaseSettings):
     ]
     chat_mode: str = "openai"
     chat_rate_limit: int = Field(default=10, ge=1, le=100)
+    contact_mode: str = "mock"
+    contact_email_to: str = "ganesh.rakate27@gmail.com"
+    contact_rate_limit: int = Field(default=5, ge=1, le=30)
+    smtp_host: str = "smtp.gmail.com"
+    smtp_port: int = 587
+    smtp_user: str = ""
+    smtp_password: str = ""
 
     model_config = SettingsConfigDict(
         env_file=BACKEND_ROOT / ".env",

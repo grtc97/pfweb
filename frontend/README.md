@@ -5,7 +5,7 @@ React + Vite frontend for the webpf portfolio.
 ## Prerequisite
 
 - Node.js 18+ with npm installed on your machine.
-- Backend running at `http://127.0.0.1:8000`.
+- Backend running at `http://127.0.0.1:8000` (only needed for the chatbot, contact form, and health status — the portfolio content itself is a static file bundled with the frontend and loads without the backend).
 
 ## Local setup
 

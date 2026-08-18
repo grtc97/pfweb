@@ -16,5 +16,19 @@ services:
         value: openai
       - key: CHAT_RATE_LIMIT
         value: "10"
+      - key: CONTACT_MODE
+        value: smtp
+      - key: CONTACT_EMAIL_TO
+        value: ganesh.rakate27@gmail.com
+      - key: CONTACT_RATE_LIMIT
+        value: "5"
+      - key: SMTP_HOST
+        value: smtp.gmail.com
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
       - key: CORS_ORIGINS
         sync: false

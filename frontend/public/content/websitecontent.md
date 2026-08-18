@@ -5,7 +5,7 @@ Location: Pune, Maharashtra, India
 # Summary
 • Senior Data Scientist with 4+ years of experience building Generative AI and Data Science systems with real business impact. 
 • Specialized in building RAG chatbots and agentic automation workflows. 
-• Actively looking for freelance projects in Generative AI and Data Science, helping organizations build production-ready AI solutions that solve real business problems.
+• Working on freelance projects in Generative AI and Data Science, helping organizations build production-ready AI solutions that solve real business problems.
 
 
 # Projects
@@ -28,13 +28,15 @@ Tags: AI Agents, Agentic Automation, Python
 Generative AI
 Chatbots
 RAG
-Agents
+AI Agents
+Agentic Automation
 Python
 AWS
 AIOps
 Machine Learning
 Deep Learning
 Data Science 
+Web Development
 
 # Experience
 
@@ -65,7 +67,14 @@ Minneapolis, MN, USA
 • Conducted behavioral experiments and data reduction analysis
 • Built predictive models for decision-making and emotion control
 
-## Indian Institute of Technology, Bombay
+## Arizona Satte University
+Computer Science Ph.D. Student (Discontinued)
+2017 - 2019
+Tempe, AZ, USA
+• Worked on projects to analyze Bioinformatics data sets
+• Wrojects in the field of NLP and Social Media Mining
+
+## Indian Institute of Technology Bombay
 Software Development Research Assistant
 2012 - 2013
 Mumbai, Maharashtra, India
@@ -83,6 +92,7 @@ B.Tech., Instrumentation and Control Engg · (2008 - 2012)
 Amazon AI Awards 2021
 
 # Contact
-Note: I'm available for freelance projects in Generative AI, chatbot development, and data science. Let's connect and discuss how I can help with your AI challenges.
+Note: I'm available for freelance projects in Generative AI, chatbot development, agentic workflow automation, data science, and web development. Let's connect and discuss how I can help with your AI challenges.
 LinkedIn: www.linkedin.com/in/ganeshr5
 GitHub: https://github.com/grtc97
+GitHub(old):  https://github.com/ganeshr5

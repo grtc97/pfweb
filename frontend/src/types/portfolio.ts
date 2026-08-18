@@ -46,10 +46,21 @@ export type ChatResponse = {
     answer: string
 }
 
+export type ContactMessage = {
+    name: string
+    email: string
+    subject: string
+    message: string
+}
+
+export type ContactResponse = {
+    message: string
+}
+
 export type HealthResponse = {
     status: string
     chat_mode: string
-    portfolio_loaded: boolean
-    portfolio_file_exists: boolean
+    chat_content_loaded: boolean
+    chat_content_file_exists: boolean
     openai_configured: boolean
 }

@@ -67,8 +67,7 @@ button {
     align-self: end;
     background: #ffffff;
     border: var(--chatbot-border-width) solid var(--chatbot-border);
-    border-bottom: none;
-    padding: 20px;
+    padding: 0;
     width: 100%;
     height: 75vh;
     overflow: hidden;
@@ -82,8 +81,40 @@ button {
     grid-row: 1;
     padding: 48px 120px;
     max-width: 100%;
+    /* A generic `main { margin: 0 auto; ... }` rule elsewhere in this file
+       (written for a different, single-column context) otherwise leaves
+       .main-content with auto side margins and no explicit width. With CSS
+       Grid, auto margins make a grid item shrink-to-fit its content and
+       center itself instead of stretching to fill its column — so each
+       page's box ended up a different width/position depending on how wide
+       its own content happened to be. Pinning width/margin here forces every
+       page to fill the same column consistently. */
+    width: 100%;
+    margin: 0;
+    /* That same generic `main` rule also sets `display: grid`, which stretches
+       .page-header/.footer/the routed content to fill 100vh as grid rows —
+       on a short page like Blog, the leftover vertical space gets absorbed
+       into .page-header's row, pushing its border-bottom far below the
+       location text. Overriding back to block flow makes every element's
+       height content-driven (via its own margins) instead of grid-stretched,
+       so the header looks the same regardless of how much content follows. */
+    display: block;
     height: 100vh;
     overflow-y: auto;
+    /* Always reserves the scrollbar's width, even on pages short enough that
+       nothing actually scrolls — otherwise the content area (and everything
+       in it, including the nav) is a scrollbar's-width wider on short pages
+       than on tall ones, so switching pages visibly shifts the layout. */
+    scrollbar-gutter: stable;
+}
+
+.site-footer {
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 1px solid var(--card-border);
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.85rem;
 }
 
 .app-state {
@@ -122,6 +153,41 @@ button {
     color: var(--muted);
     margin: 8px 0 0;
     font-size: 0.95rem;
+}
+
+.site-nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 32px;
+}
+
+.site-nav-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 18px;
+    border: 1px solid #dcc5a0;
+    border-radius: 999px;
+    color: var(--text);
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+}
+
+.site-nav-link:hover {
+    background: #f5f0e8;
+}
+
+.site-nav-link-active {
+    background: linear-gradient(135deg, #d9a84e 0%, #c7963a 100%);
+    color: #ffffff;
+    border-color: transparent;
+}
+
+.empty-state-text {
+    color: var(--muted);
+    font-style: italic;
 }
 
 .section-card {
@@ -322,6 +388,74 @@ button {
 .contact-link:hover {
     transform: translateY(-2px);
     opacity: 0.9;
+}
+
+.contact-form {
+    display: grid;
+    gap: 16px;
+    margin-top: 8px;
+}
+
+.contact-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.contact-field {
+    display: grid;
+    gap: 8px;
+}
+
+.contact-field span {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.contact-field input,
+.contact-field textarea {
+    width: 100%;
+    color: var(--text);
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 12px 14px;
+    outline: none;
+    resize: vertical;
+}
+
+.contact-field input:focus,
+.contact-field textarea:focus {
+    border-color: #d9a84e;
+    background: #ffffff;
+}
+
+.contact-field textarea {
+    min-height: 140px;
+}
+
+.contact-submit {
+    justify-self: start;
+}
+
+.contact-feedback {
+    margin: 0;
+    padding: 12px 14px;
+    border-radius: 12px;
+    font-size: 0.92rem;
+}
+
+.contact-feedback-success {
+    background: #edf7ed;
+    border: 1px solid #b7dfba;
+    color: #1f5f24;
+}
+
+.contact-feedback-error {
+    background: #fdecec;
+    border: 1px solid #f0b4b4;
+    color: #8a1f1f;
 }
 
 .topbar h1,
@@ -533,10 +667,103 @@ main {
     align-items: flex-start;
 }
 
-.chatbot-header .section-label {
+.chatbot-header-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.chatbot-header-actions-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.chatbot-controls {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.chatbot-control-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text);
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.chatbot-control-button:hover {
+    background: rgba(0, 0, 0, 0.08);
+}
+
+.chatbot-clear-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    /* Matches .chatbot-control-button's height so it lines up with the
+       minimize/maximize/close row directly above it. */
+    height: 26px;
+    padding: 0 14px;
+    background: transparent;
+    border: 1px solid #dcc5a0;
+    color: var(--text);
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+}
+
+.chatbot-clear-button:hover {
+    background: #f5f0e8;
+}
+
+.chatbot-panel-minimized {
+    grid-template-rows: auto;
+    gap: 0;
+    align-content: start;
+}
+
+/* The open chat window is always exactly 70vh — it never grows beyond that
+   (e.g. via maximize). Minimizing is the one case allowed to shrink it below
+   70vh, down to just the header, so the minimize button visibly collapses
+   the window instead of leaving an empty gray box at full height. */
+.sidebar:has(.chatbot-minimized) {
+    height: auto;
+}
+
+.chatbot-title-wrapper {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.chatbot-title-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px solid #dcc5a0;
+    border-radius: 999px;
+    padding: 8px 18px;
+    color: var(--text);
     font-size: 1.05rem;
     font-weight: 700;
-    margin-bottom: 4px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.chatbot-title-button:hover {
+    background: #f5f0e8;
 }
 
 .status-pill {
@@ -598,7 +825,7 @@ main {
 .suggested-prompts {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 4px;
 }
 
 .prompt-chip {
@@ -666,6 +893,10 @@ main {
     .hero-copy h2 {
         max-width: none;
     }
+
+    .contact-form-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 @media (max-width: 1024px) {
@@ -680,7 +911,7 @@ main {
         grid-row: 1;
         height: auto;
         min-height: 100vh;
-        padding: 40px 56px 70vh;
+        padding: 40px 56px 75vh;
     }
 
     .sidebar {
@@ -691,9 +922,8 @@ main {
         bottom: 0;
         left: 0;
         width: 100%;
-        height: 70vh;
+        height: 75vh;
         border: var(--chatbot-border-width) solid var(--chatbot-border);
-        border-bottom: none;
         box-shadow: var(--shadow);
         z-index: 10;
     }

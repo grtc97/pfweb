@@ -78,6 +78,9 @@ Desktop.ini
 # --- Cursor ---
 .cursor/
 
+# --- Claude Code local tooling config ---
+.claude/
+
 # --- Misc build / temp ---
 *.tmp
 *.temp

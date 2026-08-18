@@ -1,20 +1,20 @@
 from fastapi import APIRouter
 
 from app.core.config import settings
-from app.services.portfolio_service import load_portfolio_content, portfolio_content_exists
+from app.services.chat_content_service import chat_content_exists, load_chat_content
 
 router = APIRouter()
 
 
 @router.get("/health")
 def health_check() -> dict[str, str | bool]:
-    portfolio_loaded = bool(load_portfolio_content())
+    chat_content_loaded = bool(load_chat_content())
     openai_configured = bool(settings.openai_api_key) or settings.chat_mode.lower() == "mock"
 
     return {
-        "status": "ok" if portfolio_loaded and openai_configured else "degraded",
+        "status": "ok" if chat_content_loaded and openai_configured else "degraded",
         "chat_mode": settings.chat_mode,
-        "portfolio_loaded": portfolio_loaded,
-        "portfolio_file_exists": portfolio_content_exists(),
+        "chat_content_loaded": chat_content_loaded,
+        "chat_content_file_exists": chat_content_exists(),
         "openai_configured": openai_configured,
     }

@@ -1,10 +1,15 @@
 from __future__ import annotations
 
-from openai import AsyncOpenAI
+from openai import AsyncOpenAI, OpenAIError
 
 from app.core.config import settings
 from app.schemas.chat import ChatMessage
-from app.services.portfolio_service import load_portfolio_content
+from app.services.chat_content_service import load_chat_content
+
+
+class ChatServiceError(Exception):
+    """Raised when the upstream chat provider fails in an expected way."""
+
 
 SYSTEM_PROMPT = """You are Ganesh R's portfolio assistant.
 
@@ -27,15 +32,15 @@ def _get_client() -> AsyncOpenAI:
     return _client
 
 
-def _build_system_content(portfolio_content: str) -> str:
+def _build_system_content(chat_content: str) -> str:
     return (
         f"{SYSTEM_PROMPT}\n\n"
-        f"Portfolio content:\n{portfolio_content or 'No portfolio content provided yet.'}"
+        f"Portfolio content:\n{chat_content or 'No portfolio content provided yet.'}"
     )
 
 
-def _mock_response(user_message: str, portfolio_content: str) -> str:
-    if portfolio_content:
+def _mock_response(user_message: str, chat_content: str) -> str:
+    if chat_content:
         return (
             "Mock chatbot mode is active. "
             "I can confirm I received your question and portfolio content, but OpenAI is not enabled yet. "
@@ -55,17 +60,17 @@ async def generate_chat_response(
     if not message:
         raise ValueError("Message cannot be empty")
 
-    portfolio_content = load_portfolio_content()
+    chat_content = load_chat_content()
     conversation_history = history or []
 
     if settings.chat_mode.lower() == "mock":
-        return _mock_response(message, portfolio_content)
+        return _mock_response(message, chat_content)
 
     if not settings.openai_api_key:
         raise ValueError("OPENAI_API_KEY is not configured")
 
     messages: list[dict[str, str]] = [
-        {"role": "system", "content": _build_system_content(portfolio_content)},
+        {"role": "system", "content": _build_system_content(chat_content)},
     ]
 
     for item in conversation_history[-10:]:
@@ -74,12 +79,15 @@ async def generate_chat_response(
     messages.append({"role": "user", "content": message})
 
     client = _get_client()
-    response = await client.chat.completions.create(
-        model=settings.openai_model,
-        messages=messages,
-        temperature=0.3,
-        max_tokens=500,
-    )
+    try:
+        response = await client.chat.completions.create(
+            model=settings.openai_model,
+            messages=messages,
+            temperature=0.3,
+            max_tokens=500,
+        )
+    except OpenAIError as exc:
+        raise ChatServiceError("The chatbot is temporarily unavailable. Please try again shortly.") from exc
 
     choice = response.choices[0] if response.choices else None
     content = choice.message.content if choice and choice.message else None
