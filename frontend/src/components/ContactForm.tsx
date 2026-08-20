@@ -1,6 +1,7 @@
 import { FormEvent, useMemo, useState } from 'react'
 
 import { sendContactMessage } from '../services/api'
+import { logError } from '../services/logger'
 
 type FormState = {
     name: string
@@ -32,6 +33,10 @@ const FIELD_LABELS: Record<keyof FormState, string> = {
 
 function isWithinLimit(field: keyof FormState, value: string): boolean {
     return value.length <= FIELD_LIMITS[field]
+}
+
+function describeSubmitError(error: unknown): string {
+    return error instanceof Error ? error.message : 'Unable to send your message right now.'
 }
 
 export function ContactForm() {
@@ -76,10 +81,8 @@ export function ContactForm() {
             setForm(EMPTY_FORM)
             setFeedback({ type: 'success', text: response.message })
         } catch (error) {
-            setFeedback({
-                type: 'error',
-                text: error instanceof Error ? error.message : 'Unable to send your message right now.',
-            })
+            logError('Contact form submission failed', error)
+            setFeedback({ type: 'error', text: describeSubmitError(error) })
         } finally {
             setIsSubmitting(false)
         }

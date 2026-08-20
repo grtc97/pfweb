@@ -26,7 +26,7 @@ For a deeper dive into architecture, request flows, and known limitations, see [
 
 ```bash
 cd backend
-python3 -m venv .venv        # or use your existing environment, e.g. source /home/ganesh/envt/genai/bin/activate
+python3 -m venv .venv        # or use your own existing virtual environment
 source .venv/bin/activate    # on Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 cp .env.example .env
@@ -93,7 +93,7 @@ They start out as copies of each other but are expected to diverge over time —
 
 ```bash
 cd backend
-source /home/ganesh/envt/genai/bin/activate    # or your own environment with requirements.txt installed
+source .venv/bin/activate    # or your own environment with requirements.txt installed
 pytest
 ```
 
@@ -154,8 +154,8 @@ npx tsc --noEmit
    - `OPENAI_API_KEY`
    - `CHAT_MODE=openai`
    - `CONTACT_MODE=smtp`
-   - `CONTACT_EMAIL_TO=ganesh.rakate27@gmail.com`
-   - `SMTP_USER=ganesh.rakate27@gmail.com` (Gmail account used to send)
+   - `CONTACT_EMAIL_TO` — the address that should receive contact-form submissions
+   - `SMTP_USER` — the Gmail account used to send (same address as above, or a dedicated sending account)
    - `SMTP_PASSWORD` — a Gmail [App Password](https://myaccount.google.com/apppasswords), **not** your regular account password
    - `CORS_ORIGINS=["https://your-site.vercel.app"]` — must match your actual Vercel production URL (and any preview/custom domains you want to allow)
 4. Deploy. Confirm it's healthy by visiting `https://<your-render-app>.onrender.com/api/health` — expect `"status": "ok"`.

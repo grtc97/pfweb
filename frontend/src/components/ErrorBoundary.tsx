@@ -1,5 +1,7 @@
 import { Component, ErrorInfo, ReactNode } from 'react'
 
+import { logError } from '../services/logger'
+
 type Props = {
     children: ReactNode
 }
@@ -16,7 +18,7 @@ export class ErrorBoundary extends Component<Props, State> {
     }
 
     componentDidCatch(error: Error, info: ErrorInfo): void {
-        console.error('Unhandled UI error:', error, info.componentStack)
+        logError('Unhandled UI error', { error, componentStack: info.componentStack })
     }
 
     render(): ReactNode {

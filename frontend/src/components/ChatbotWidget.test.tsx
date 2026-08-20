@@ -157,7 +157,7 @@ describe('ChatbotWidget', () => {
         await user.click(screen.getByRole('button', { name: /minimize chat/i }))
         expect(screen.queryByPlaceholderText(/Ask about projects, skills, or contact details/i)).not.toBeInTheDocument()
 
-        await user.click(screen.getByRole('button', { name: /ask ganesh - chat with my ai assistant/i }))
+        await user.click(screen.getByRole('button', { name: /chat with ganesh's ai assistant/i }))
 
         expect(screen.getByPlaceholderText(/Ask about projects, skills, or contact details/i)).toBeInTheDocument()
         expect(screen.getByText('What do you build?')).toBeInTheDocument()
@@ -178,7 +178,7 @@ describe('ChatbotWidget', () => {
         await user.click(screen.getByRole('button', { name: /close chat/i }))
         expect(screen.queryByPlaceholderText(/Ask about projects, skills, or contact details/i)).not.toBeInTheDocument()
 
-        await user.click(screen.getByRole('button', { name: /ask ganesh - chat with my ai assistant/i }))
+        await user.click(screen.getByRole('button', { name: /chat with ganesh's ai assistant/i }))
 
         expect(screen.getByPlaceholderText(/Ask about projects, skills, or contact details/i)).toBeInTheDocument()
         expect(screen.getByText(/Hi! I'm Ganesh's AI assistant/i)).toBeInTheDocument()
@@ -203,26 +203,30 @@ describe('ChatbotWidget', () => {
         expect(screen.getByText(/Hi! I'm Ganesh's AI assistant/i)).toBeInTheDocument()
     })
 
-    it('places the CLEAR button in the header, below the minimize/maximize/close row', () => {
+    it('places the CLEAR button between the status pill and the minimize/maximize/close row', () => {
         render(<ChatbotWidget />)
 
         const clearButton = screen.getByRole('button', { name: 'CLEAR' })
         const closeButton = screen.getByRole('button', { name: /close chat/i })
-        const headerActions = clearButton.closest('.chatbot-header-actions')
+        const statusPill = screen.getByText('Checking')
+        const actionsRow = clearButton.closest('.chatbot-header-actions-row')
 
         expect(clearButton.closest('.chatbot-header')).not.toBeNull()
         expect(closeButton.closest('.chatbot-header')).not.toBeNull()
-        expect(headerActions).not.toBeNull()
+        expect(actionsRow).not.toBeNull()
 
-        // The controls row (minimize/maximize/close) and the CLEAR button are
-        // both direct children of the same column container, in that order —
-        // with `.chatbot-header-actions { flex-direction: column }`, DOM
-        // order is display order, so this places CLEAR visually below them.
-        const children = Array.from(headerActions!.children)
-        const controlsRowIndex = children.findIndex((child) => child.contains(closeButton))
+        // The status pill, CLEAR button, and the controls row (minimize/
+        // maximize/close) are all direct children of the same horizontal
+        // row container, in that order — with `.chatbot-header-actions-row
+        // { display: flex }`, DOM order is display order, so CLEAR sits to
+        // the right of the status and to the left of the controls.
+        const children = Array.from(actionsRow!.children)
+        const statusIndex = children.findIndex((child) => child.contains(statusPill))
         const clearIndex = children.indexOf(clearButton)
-        expect(controlsRowIndex).toBeGreaterThanOrEqual(0)
-        expect(clearIndex).toBeGreaterThan(controlsRowIndex)
+        const controlsRowIndex = children.findIndex((child) => child.contains(closeButton))
+        expect(statusIndex).toBeGreaterThanOrEqual(0)
+        expect(clearIndex).toBeGreaterThan(statusIndex)
+        expect(controlsRowIndex).toBeGreaterThan(clearIndex)
     })
 
     it('the CLEAR button remains visible and usable while the chat is minimized', async () => {

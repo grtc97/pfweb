@@ -1,6 +1,7 @@
 import { FormEvent, useEffect, useMemo, useRef, useState } from 'react'
 
 import { pingBackend, sendChatMessage } from '../services/api'
+import { logError } from '../services/logger'
 import type { ChatMessage } from '../types/portfolio'
 
 const SUGGESTED_PROMPTS = [
@@ -17,6 +18,10 @@ const GREETING_MESSAGE: ChatMessage = {
 
 type BackendStatus = 'checking' | 'online' | 'degraded' | 'offline'
 
+function describeChatError(error: unknown): string {
+    return error instanceof Error ? error.message : 'The chatbot is unavailable right now. Please try again.'
+}
+
 export function ChatbotWidget() {
     const [input, setInput] = useState('')
     const [isLoading, setIsLoading] = useState(false)
@@ -32,7 +37,8 @@ export function ChatbotWidget() {
             .then((health) => {
                 setBackendStatus(health.status === 'ok' ? 'online' : 'degraded')
             })
-            .catch(() => {
+            .catch((error: unknown) => {
+                logError('Backend health check failed', error)
                 setBackendStatus('offline')
             })
     }, [])
@@ -59,15 +65,10 @@ export function ChatbotWidget() {
             setMessages((current) => [...current, { role: 'assistant', content: response.answer }])
             setBackendStatus('online')
         } catch (error) {
+            logError('Chat request failed', error)
             setMessages((current) => [
                 ...current,
-                {
-                    role: 'assistant',
-                    content:
-                        error instanceof Error
-                            ? error.message
-                            : 'The chatbot is unavailable right now. Please try again.',
-                },
+                { role: 'assistant', content: describeChatError(error) },
             ])
             setBackendStatus('offline')
         } finally {
@@ -125,12 +126,15 @@ export function ChatbotWidget() {
                 <div className="chatbot-header">
                     <div className="chatbot-title-wrapper">
                         <button type="button" className="chatbot-title-button" onClick={handleMaximize}>
-                            Ask Ganesh - Chat with my AI assistant
+                            Chat with Ganesh's AI Assistant
                         </button>
                     </div>
                     <div className="chatbot-header-actions">
                         <div className="chatbot-header-actions-row">
                             <span className={`status-pill status-${backendStatus}`}>{statusLabel}</span>
+                            <button type="button" className="chatbot-clear-button" onClick={handleClear}>
+                                CLEAR
+                            </button>
                             <div className="chatbot-controls">
                                 <button
                                     type="button"
@@ -158,9 +162,6 @@ export function ChatbotWidget() {
                                 </button>
                             </div>
                         </div>
-                        <button type="button" className="chatbot-clear-button" onClick={handleClear}>
-                            CLEAR
-                        </button>
                     </div>
                 </div>
 

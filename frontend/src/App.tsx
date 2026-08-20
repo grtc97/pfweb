@@ -7,6 +7,7 @@ import { ContactPage } from './pages/ContactPage'
 import { ExperiencePage } from './pages/ExperiencePage'
 import { HomePage } from './pages/HomePage'
 import { loadPortfolio } from './services/portfolio'
+import { logError } from './services/logger'
 import type { Portfolio } from './types/portfolio'
 
 const NAV_LINKS = [
@@ -15,6 +16,10 @@ const NAV_LINKS = [
     { to: '/blog', label: 'Blog', end: false },
     { to: '/contact', label: 'Contact', end: false },
 ]
+
+function describeLoadError(error: unknown): string {
+    return error instanceof Error ? error.message : 'Failed to load portfolio content.'
+}
 
 export default function App() {
     const [portfolio, setPortfolio] = useState<Portfolio | null>(null)
@@ -32,12 +37,9 @@ export default function App() {
                 }
             })
             .catch((fetchError: unknown) => {
+                logError('Failed to load portfolio content', fetchError)
                 if (!cancelled) {
-                    setError(
-                        fetchError instanceof Error
-                            ? fetchError.message
-                            : 'Failed to load portfolio content.',
-                    )
+                    setError(describeLoadError(fetchError))
                 }
             })
 

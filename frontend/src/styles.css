@@ -156,12 +156,12 @@ button {
 .site-nav-link {
     display: inline-flex;
     align-items: center;
-    padding: 8px 18px;
+    padding: 10px 22px;
     border: 1px solid #dcc5a0;
     border-radius: 999px;
     color: var(--text);
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: 1.08rem;
     text-decoration: none;
 }
 
@@ -486,14 +486,11 @@ button {
     display: flex;
     justify-content: space-between;
     gap: 12px;
-    align-items: flex-start;
+    align-items: center;
 }
 
 .chatbot-header-actions {
     display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 6px;
     flex-shrink: 0;
 }
 
@@ -513,12 +510,12 @@ button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 26px;
-    height: 26px;
+    width: 34px;
+    height: 34px;
     border-radius: 6px;
     background: transparent;
     color: var(--text);
-    font-size: 1rem;
+    font-size: 1.3rem;
     line-height: 1;
     cursor: pointer;
 }
@@ -531,15 +528,13 @@ button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    /* Matches .chatbot-control-button's height so it lines up with the
-       minimize/maximize/close row directly above it. */
-    height: 26px;
-    padding: 0 14px;
+    height: 29px;
+    padding: 0 11px;
     background: transparent;
     border: 1px solid #dcc5a0;
     color: var(--text);
     border-radius: 999px;
-    font-size: 0.72rem;
+    font-size: 0.79rem;
     font-weight: 700;
     letter-spacing: 0.04em;
     cursor: pointer;
@@ -565,6 +560,7 @@ button {
 
 .chatbot-title-wrapper {
     flex: 1;
+    min-width: 0;
     display: flex;
     justify-content: center;
 }
@@ -573,14 +569,17 @@ button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    max-width: 100%;
     background: transparent;
     border: 1px solid #dcc5a0;
     border-radius: 999px;
-    padding: 8px 18px;
+    padding: 6px 8px;
     color: var(--text);
-    font-size: 1.05rem;
+    font-size: 1rem;
     font-weight: 700;
     text-align: center;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
     cursor: pointer;
 }
 
