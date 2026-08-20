@@ -134,7 +134,7 @@ def test_send_contact_email_shows_visitor_name_in_from_but_keeps_reply_to_theirs
     )
 
     sent = _RecordingSMTP.sent_messages[0]
-    assert sent["From"] == '"Jane Doe (via portfolio)" <sender@example.com>'
+    assert sent["From"] == '"Jane Doe: Hello (via website message)" <sender@example.com>'
     assert sent["Reply-To"] == "jane@example.com"
 
 
@@ -157,7 +157,32 @@ def test_send_contact_email_sanitizes_a_name_with_embedded_newlines(monkeypatch:
     sent = _RecordingSMTP.sent_messages[0]
     assert "\n" not in sent["From"]
     assert "\r" not in sent["From"]
-    assert sent["From"] == '"Evil Bcc: attacker@example.com (via portfolio)" <sender@example.com>'
+    assert sent["From"] == '"Evil Bcc: attacker@example.com: Hello (via website message)" <sender@example.com>'
+
+
+def test_send_contact_email_sanitizes_a_subject_with_embedded_newlines(monkeypatch: pytest.MonkeyPatch) -> None:
+    from app.services import email_service
+
+    monkeypatch.setattr(email_service.settings, "contact_mode", "smtp")
+    monkeypatch.setattr(email_service.settings, "smtp_user", "sender@example.com")
+    monkeypatch.setattr(email_service.settings, "smtp_password", "app-password")
+    _RecordingSMTP.sent_messages = []
+    monkeypatch.setattr(email_service.smtplib, "SMTP", _RecordingSMTP)
+
+    send_contact_email(
+        name="Jane Doe",
+        email="jane@example.com",
+        subject="Evil\r\nBcc: attacker@example.com",
+        message="Test message",
+    )
+
+    sent = _RecordingSMTP.sent_messages[0]
+    assert "\n" not in sent["From"]
+    assert "\r" not in sent["From"]
+    assert "\n" not in sent["Subject"]
+    assert "\r" not in sent["Subject"]
+    assert sent["From"] == '"Jane Doe: Evil Bcc: attacker@example.com (via website message)" <sender@example.com>'
+    assert sent["Subject"] == "[Portfolio Contact] Evil Bcc: attacker@example.com"
 
 
 def test_send_contact_email_falls_back_to_a_generic_name_when_blank(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -177,4 +202,25 @@ def test_send_contact_email_falls_back_to_a_generic_name_when_blank(monkeypatch:
     )
 
     sent = _RecordingSMTP.sent_messages[0]
-    assert sent["From"] == '"Portfolio visitor (via portfolio)" <sender@example.com>'
+    assert sent["From"] == '"Portfolio visitor: Hello (via website message)" <sender@example.com>'
+
+
+def test_send_contact_email_falls_back_to_a_generic_subject_when_blank(monkeypatch: pytest.MonkeyPatch) -> None:
+    from app.services import email_service
+
+    monkeypatch.setattr(email_service.settings, "contact_mode", "smtp")
+    monkeypatch.setattr(email_service.settings, "smtp_user", "sender@example.com")
+    monkeypatch.setattr(email_service.settings, "smtp_password", "app-password")
+    _RecordingSMTP.sent_messages = []
+    monkeypatch.setattr(email_service.smtplib, "SMTP", _RecordingSMTP)
+
+    send_contact_email(
+        name="Jane Doe",
+        email="jane@example.com",
+        subject="   ",
+        message="Test message",
+    )
+
+    sent = _RecordingSMTP.sent_messages[0]
+    assert sent["Subject"] == "[Portfolio Contact] No subject"
+    assert sent["From"] == '"Jane Doe: No subject (via website message)" <sender@example.com>'

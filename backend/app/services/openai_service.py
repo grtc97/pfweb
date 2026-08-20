@@ -1,10 +1,16 @@
 from __future__ import annotations
 
+import logging
+
 from openai import AsyncOpenAI, OpenAIError
 
 from app.core.config import settings
 from app.schemas.chat import ChatMessage
 from app.services.chat_content_service import load_chat_content
+
+logger = logging.getLogger("webpf")
+
+MAX_HISTORY_TURNS = 10
 
 
 class ChatServiceError(Exception):
@@ -32,11 +38,37 @@ def _get_client() -> AsyncOpenAI:
     return _client
 
 
+def _validate_message(user_message: str) -> str:
+    message = user_message.strip()
+    if not message:
+        raise ValueError("Message cannot be empty")
+    return message
+
+
+def _ensure_openai_configured() -> None:
+    if not settings.openai_api_key:
+        raise ValueError("OPENAI_API_KEY is not configured")
+
+
 def _build_system_content(chat_content: str) -> str:
     return (
         f"{SYSTEM_PROMPT}\n\n"
         f"Portfolio content:\n{chat_content or 'No portfolio content provided yet.'}"
     )
+
+
+def _build_messages(
+    chat_content: str,
+    history: list[ChatMessage],
+    message: str,
+) -> list[dict[str, str]]:
+    messages: list[dict[str, str]] = [
+        {"role": "system", "content": _build_system_content(chat_content)},
+    ]
+    for item in history[-MAX_HISTORY_TURNS:]:
+        messages.append({"role": item.role, "content": item.content.strip()})
+    messages.append({"role": "user", "content": message})
+    return messages
 
 
 def _mock_response(user_message: str, chat_content: str) -> str:
@@ -52,32 +84,7 @@ def _mock_response(user_message: str, chat_content: str) -> str:
     )
 
 
-async def generate_chat_response(
-    user_message: str,
-    history: list[ChatMessage] | None = None,
-) -> str:
-    message = user_message.strip()
-    if not message:
-        raise ValueError("Message cannot be empty")
-
-    chat_content = load_chat_content()
-    conversation_history = history or []
-
-    if settings.chat_mode.lower() == "mock":
-        return _mock_response(message, chat_content)
-
-    if not settings.openai_api_key:
-        raise ValueError("OPENAI_API_KEY is not configured")
-
-    messages: list[dict[str, str]] = [
-        {"role": "system", "content": _build_system_content(chat_content)},
-    ]
-
-    for item in conversation_history[-10:]:
-        messages.append({"role": item.role, "content": item.content.strip()})
-
-    messages.append({"role": "user", "content": message})
-
+async def _call_openai(messages: list[dict[str, str]]) -> str:
     client = _get_client()
     try:
         response = await client.chat.completions.create(
@@ -87,11 +94,34 @@ async def generate_chat_response(
             max_tokens=500,
         )
     except OpenAIError as exc:
+        logger.exception("OpenAI chat completion request failed")
         raise ChatServiceError("The chatbot is temporarily unavailable. Please try again shortly.") from exc
 
-    choice = response.choices[0] if response.choices else None
+    return _extract_answer(response)
+
+
+def _extract_answer(response: object) -> str:
+    choice = response.choices[0] if response.choices else None  # type: ignore[attr-defined]
     content = choice.message.content if choice and choice.message else None
     if content:
         return content.strip()
-
     return "I could not generate a response. Please try again."
+
+
+async def generate_chat_response(
+    user_message: str,
+    history: list[ChatMessage] | None = None,
+) -> str:
+    message = _validate_message(user_message)
+    chat_content = load_chat_content()
+    conversation_history = history or []
+
+    if settings.chat_mode.lower() == "mock":
+        logger.info("Chat request answered in mock mode")
+        return _mock_response(message, chat_content)
+
+    _ensure_openai_configured()
+    messages = _build_messages(chat_content, conversation_history, message)
+    answer = await _call_openai(messages)
+    logger.info("Chat request answered via OpenAI")
+    return answer

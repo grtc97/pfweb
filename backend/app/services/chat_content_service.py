@@ -1,6 +1,9 @@
+import logging
 from pathlib import Path
 
 from app.core.config import BACKEND_ROOT, settings
+
+logger = logging.getLogger("webpf")
 
 
 def _resolve_content_path() -> Path:
@@ -13,6 +16,7 @@ def _resolve_content_path() -> Path:
 def load_chat_content() -> str:
     content_path = _resolve_content_path()
     if not content_path.exists():
+        logger.warning("Chat content file not found at %s", content_path)
         return ""
     return content_path.read_text(encoding="utf-8").strip()
 

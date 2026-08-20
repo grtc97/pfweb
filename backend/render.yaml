@@ -19,7 +19,7 @@ services:
       - key: CONTACT_MODE
         value: smtp
       - key: CONTACT_EMAIL_TO
-        value: ganesh.rakate27@gmail.com
+        sync: false
       - key: CONTACT_RATE_LIMIT
         value: "5"
       - key: SMTP_HOST

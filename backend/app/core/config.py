@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     chat_mode: str = "openai"
     chat_rate_limit: int = Field(default=10, ge=1, le=100)
     contact_mode: str = "mock"
-    contact_email_to: str = "ganesh.rakate27@gmail.com"
+    contact_email_to: str = "you@example.com"
     contact_rate_limit: int = Field(default=5, ge=1, le=30)
     smtp_host: str = "smtp.gmail.com"
     smtp_port: int = 587
