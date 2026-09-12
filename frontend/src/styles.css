@@ -1,19 +1,27 @@
 :root {
-    color: #2c2c2c;
-    background: #ffffff;
+    /* Palette adapted from visitqatar.page: warm cream page, deep teal as the
+       primary accent used consistently across the site, including the
+       chatbot module (its border uses the darker teal shade for a touch of
+       distinction without introducing an unrelated color). */
+    color: #3a3836;
+    background: #faf8f4;
     font-synthesis: none;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    --page: #f9f9f9;
+    --page: #faf8f4;
     --card: #ffffff;
     --card-border: rgba(0, 0, 0, 0.1);
-    --accent: #d9a84e;
-    --accent-strong: #c7963a;
-    --text: #2c2c2c;
-    --muted: #666666;
+    --accent: #00627b;
+    --accent-strong: #035367;
+    --accent-soft: #c1dde5;
+    --accent-soft-bg: #e6f2f5;
+    --text: #3a3836;
+    --muted: #6c6a68;
+    --neutral-bg: #e2e0dc;
+    --neutral-border: #d6d3ce;
     --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    --chatbot-border: #b8892f;
+    --chatbot-border: var(--accent-strong);
     --chatbot-border-width: 10px;
 }
 
@@ -31,7 +39,7 @@ body {
     min-height: 100vh;
     color: var(--text);
     font-family: 'Trebuchet MS', 'Verdana', 'Segoe UI', sans-serif;
-    background: #ffffff;
+    background: var(--page);
 }
 
 button,
@@ -67,8 +75,8 @@ button {
     display: flex;
     justify-content: center;
     padding: 16px 24px;
-    border: 1px solid #e0e0e0;
-    background: #ffffff;
+    border: 1px solid var(--neutral-border);
+    background: var(--card);
     margin-bottom: 32px;
 }
 
@@ -81,7 +89,7 @@ button {
     right: 0;
     bottom: 0;
     width: 35vw;
-    background: #ffffff;
+    background: var(--card);
     border: var(--chatbot-border-width) solid var(--chatbot-border);
     padding: 0;
     height: 75vh;
@@ -99,7 +107,8 @@ button {
     max-width: 100%;
     width: 100%;
     margin: 0;
-    display: block;
+    display: flex;
+    flex-direction: column;
     min-height: 100vh;
     /* The portfolio no longer scrolls in its own inner box — the whole page
        scrolls instead, so the browser's native scrollbar renders at the true
@@ -107,6 +116,15 @@ button {
        than at the boundary between the portfolio and the chatbot column. The
        chatbot stays visually in place regardless, since it's viewport-fixed
        (see .sidebar) rather than living inside this scrolling box. */
+}
+
+.page-content {
+    /* Grows to fill any leftover height so .site-footer always lands at the
+       bottom of the viewport on short pages (Home, Blog) instead of floating
+       right under a few lines of content — while long pages (Experience)
+       simply push it further down as normal, since flex items don't shrink
+       below their own content height. */
+    flex: 1 0 auto;
 }
 
 .site-footer {
@@ -130,7 +148,7 @@ button {
 .page-header {
     margin-bottom: 24px;
     padding-bottom: 20px;
-    border-bottom: 2px solid #e0e0e0;
+    border-bottom: 2px solid var(--neutral-border);
 }
 
 .header-content h1 {
@@ -157,7 +175,7 @@ button {
     display: inline-flex;
     align-items: center;
     padding: 10px 22px;
-    border: 1px solid #dcc5a0;
+    border: 1px solid var(--accent-soft);
     border-radius: 999px;
     color: var(--text);
     font-weight: 600;
@@ -166,11 +184,11 @@ button {
 }
 
 .site-nav-link:hover {
-    background: #f5f0e8;
+    background: var(--accent-soft-bg);
 }
 
 .site-nav-link-active {
-    background: linear-gradient(135deg, #d9a84e 0%, #c7963a 100%);
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
     color: #ffffff;
     border-color: transparent;
 }
@@ -183,7 +201,7 @@ button {
 .section-card {
     margin-bottom: 24px;
     padding-bottom: 20px;
-    border-bottom: 1px solid #e8e8e8;
+    border-bottom: 1px solid var(--neutral-border);
 }
 
 .section-header {
@@ -221,8 +239,8 @@ button {
 .experience-item {
     padding: 20px;
     border-radius: 12px;
-    background: #f5f5f5;
-    border: 1px solid #e8e8e8;
+    background: var(--neutral-bg);
+    border: 1px solid var(--neutral-border);
 }
 
 .edu-header,
@@ -283,8 +301,8 @@ button {
 .skill-tag {
     padding: 12px 16px;
     border-radius: 8px;
-    background: #f5f0e8;
-    border: 1px solid #dcc5a0;
+    background: var(--accent-soft-bg);
+    border: 1px solid var(--accent-soft);
     text-align: center;
     font-size: 0.95rem;
     color: var(--text);
@@ -299,8 +317,8 @@ button {
 .project-card {
     padding: 20px;
     border-radius: 12px;
-    background: #f5f5f5;
-    border: 1px solid #e8e8e8;
+    background: var(--neutral-bg);
+    border: 1px solid var(--neutral-border);
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -330,8 +348,8 @@ button {
 .tag {
     padding: 6px 12px;
     border-radius: 20px;
-    background: #f5f0e8;
-    border: 1px solid #dcc5a0;
+    background: var(--accent-soft-bg);
+    border: 1px solid var(--accent-soft);
     font-size: 0.85rem;
 }
 
@@ -356,7 +374,7 @@ button {
 .contact-link {
     padding: 10px 16px;
     border-radius: 8px;
-    background: linear-gradient(135deg, #d9a84e 0%, #c7963a 100%);
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
     color: #ffffff;
     font-weight: 600;
     font-size: 0.9rem;
@@ -376,7 +394,7 @@ button {
        above it. */
     margin-top: 40px;
     padding: 24px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--neutral-border);
     border-radius: 16px;
     background: var(--card);
 }
@@ -402,8 +420,8 @@ button {
 .contact-field textarea {
     width: 100%;
     color: var(--text);
-    background: #f9f9f9;
-    border: 1px solid #ddd;
+    background: var(--page);
+    border: 1px solid var(--neutral-border);
     border-radius: 12px;
     padding: 12px 14px;
     outline: none;
@@ -412,8 +430,8 @@ button {
 
 .contact-field input:focus,
 .contact-field textarea:focus {
-    border-color: #d9a84e;
-    background: #ffffff;
+    border-color: var(--accent);
+    background: var(--card);
 }
 
 .contact-field textarea {
@@ -453,7 +471,7 @@ button {
     cursor: pointer;
     transition: transform 160ms ease, opacity 160ms ease, background-color 160ms ease;
     color: #ffffff;
-    background: linear-gradient(135deg, #d9a84e 0%, #c7963a 100%);
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
     font-weight: 700;
 }
 
@@ -477,7 +495,7 @@ button {
     gap: 12px;
     padding: 12px;
     border-radius: 0;
-    background: #f0ede8;
+    background: var(--page);
     border: none;
     box-shadow: none;
 }
@@ -521,7 +539,7 @@ button {
 }
 
 .chatbot-control-button:hover {
-    background: rgba(0, 0, 0, 0.08);
+    background: rgba(0, 98, 123, 0.1);
 }
 
 .chatbot-clear-button {
@@ -531,7 +549,7 @@ button {
     height: 29px;
     padding: 0 11px;
     background: transparent;
-    border: 1px solid #dcc5a0;
+    border: 1px solid var(--accent-soft);
     color: var(--text);
     border-radius: 999px;
     font-size: 0.79rem;
@@ -541,13 +559,20 @@ button {
 }
 
 .chatbot-clear-button:hover {
-    background: #f5f0e8;
+    background: var(--accent-soft-bg);
 }
 
 .chatbot-panel-minimized {
     grid-template-rows: auto;
     gap: 0;
     align-content: start;
+}
+
+/* Hidden on desktop, where minimizing collapses to the header bar instead —
+   shown only on mobile (see the max-width: 1024px block below), where it
+   replaces the whole panel with a small floating button. */
+.chatbot-fab {
+    display: none;
 }
 
 /* The open chat window is always exactly 75vh — it never grows beyond that
@@ -571,7 +596,7 @@ button {
     justify-content: center;
     max-width: 100%;
     background: transparent;
-    border: 1px solid #dcc5a0;
+    border: 1px solid var(--accent-soft);
     border-radius: 999px;
     padding: 6px 8px;
     color: var(--text);
@@ -584,7 +609,7 @@ button {
 }
 
 .chatbot-title-button:hover {
-    background: #f5f0e8;
+    background: var(--accent-soft-bg);
 }
 
 .status-pill {
@@ -616,6 +641,7 @@ button {
 
 .chatbot-messages {
     display: grid;
+    align-content: start;
     gap: 10px;
     overflow: auto;
     padding-right: 4px;
@@ -630,13 +656,13 @@ button {
 
 .chat-bubble.user {
     margin-left: auto;
-    background: linear-gradient(135deg, #d9a84e, #c7963a);
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
     color: #ffffff;
 }
 
 .chat-bubble.assistant {
-    background: #f5f5f5;
-    border: 1px solid #e8e8e8;
+    background: var(--neutral-bg);
+    border: 1px solid var(--neutral-border);
     color: var(--text);
 }
 
@@ -652,8 +678,8 @@ button {
 }
 
 .prompt-chip {
-    border: 1px solid #dcc5a0;
-    background: #fff;
+    border: 1px solid var(--accent-soft);
+    background: var(--card);
     color: var(--text);
     border-radius: 999px;
     padding: 8px 12px;
@@ -662,7 +688,7 @@ button {
 }
 
 .prompt-chip:hover:not(:disabled) {
-    background: #f5f0e8;
+    background: var(--accent-soft-bg);
 }
 
 .prompt-chip:disabled {
@@ -688,16 +714,16 @@ button {
     max-height: 180px;
     width: 100%;
     color: var(--text);
-    background: #f9f9f9;
-    border: 1px solid #ddd;
+    background: var(--page);
+    border: 1px solid var(--neutral-border);
     border-radius: 16px;
     padding: 12px 14px;
     outline: none;
 }
 
 .chatbot-form textarea:focus {
-    border-color: #d9a84e;
-    background: #ffffff;
+    border-color: var(--accent);
+    background: var(--card);
 }
 
 .primary-button:disabled {
@@ -714,18 +740,88 @@ button {
     .main-content {
         grid-column: 1;
         grid-row: 2;
-        padding: 40px 56px 75vh;
+        /* Only needs to clear the small floating chat button now, not the
+           full 75vh sheet — the chat starts collapsed on mobile and only
+           covers the screen temporarily, while the user has it open. */
+        padding: 40px 56px 96px;
     }
 
     .sidebar {
         left: 0;
         width: 100%;
     }
+
+    /* Collapsed on mobile: shrink the whole sidebar down to a small floating
+       circle button in the corner instead of the full-width header bar used
+       on desktop, so the chatbot doesn't sit as a permanent bar on screen. */
+    .sidebar:has(.chatbot-minimized) {
+        left: auto;
+        right: 16px;
+        bottom: 16px;
+        width: 64px;
+        height: 64px;
+        border: none;
+        box-shadow: none;
+        background: transparent;
+    }
+
+    .chatbot-panel-minimized {
+        padding: 0;
+        background: transparent;
+    }
+
+    .chatbot-panel-minimized .chatbot-header {
+        display: none;
+    }
+
+    .chatbot-fab {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
+        color: #ffffff;
+        box-shadow: var(--shadow);
+        cursor: pointer;
+    }
+
+    /* Larger touch targets than the desktop 34px controls, per mobile a11y
+       guidance (roughly 44px minimum). */
+    .chatbot-control-button {
+        width: 44px;
+        height: 44px;
+    }
+
+    /* The title button and the status/clear/controls row no longer fit on
+       one line at mobile widths (especially with the larger touch targets
+       above) — stack the title on its own full-width row instead of
+       squeezing it into a sliver next to the rest, which otherwise wrapped
+       it across a dozen lines and pushed the message list out of view. */
+    .chatbot-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .chatbot-title-wrapper {
+        flex: none;
+        width: 100%;
+    }
+
+    .chatbot-header-actions {
+        width: 100%;
+    }
+
+    .chatbot-header-actions-row {
+        justify-content: space-between;
+    }
 }
 
 @media (max-width: 640px) {
     .main-content {
-        padding: 32px 36px 70vh;
+        padding: 32px 36px 96px;
     }
 
     .section-header {

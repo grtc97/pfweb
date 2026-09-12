@@ -106,17 +106,17 @@ describe('App', () => {
             mockedPortfolioService.loadPortfolio.mockResolvedValue(SAMPLE_PORTFOLIO)
         })
 
-        it('shows Home (About Me, Education) by default, and not the other pages\' sections', async () => {
+        it('shows Home (About Me) by default, and not the other pages\' sections', async () => {
             renderApp('/')
 
             expect(await screen.findByRole('heading', { name: 'About Me' })).toBeInTheDocument()
-            expect(screen.getByRole('heading', { name: 'Education' })).toBeInTheDocument()
+            expect(screen.queryByRole('heading', { name: 'Education' })).not.toBeInTheDocument()
             expect(screen.queryByRole('heading', { name: 'Skills' })).not.toBeInTheDocument()
             expect(screen.queryByRole('heading', { name: 'Contact Me' })).not.toBeInTheDocument()
             expect(screen.queryByRole('heading', { name: 'Blog' })).not.toBeInTheDocument()
         })
 
-        it('navigates to Experience (Experience, Skills, Projects, Honors & Awards, in that order) via the nav link', async () => {
+        it('navigates to Experience (Education, Experience, Skills, Projects, Honors & Awards, in that order) via the nav link', async () => {
             const user = userEvent.setup()
             renderApp('/')
 
@@ -124,18 +124,21 @@ describe('App', () => {
             await user.click(screen.getByRole('link', { name: 'Experience' }))
 
             expect(await screen.findByRole('heading', { name: 'Skills' })).toBeInTheDocument()
+            expect(screen.getByRole('heading', { name: 'Education' })).toBeInTheDocument()
             expect(screen.getByRole('heading', { name: 'Experience' })).toBeInTheDocument()
             expect(screen.getByRole('heading', { name: 'Projects' })).toBeInTheDocument()
             expect(screen.getByRole('heading', { name: 'Honors & Awards' })).toBeInTheDocument()
             expect(screen.queryByRole('heading', { name: 'About Me' })).not.toBeInTheDocument()
 
-            // Skills must come after Experience, not before.
+            // Education must come before Experience, and Skills must come after it.
             const headingOrder = screen
                 .getAllByRole('heading', { level: 2 })
                 .map((heading) => heading.textContent)
+            const educationIndex = headingOrder.indexOf('Education')
             const experienceIndex = headingOrder.indexOf('Experience')
             const skillsIndex = headingOrder.indexOf('Skills')
-            expect(experienceIndex).toBeGreaterThanOrEqual(0)
+            expect(educationIndex).toBeGreaterThanOrEqual(0)
+            expect(experienceIndex).toBeGreaterThan(educationIndex)
             expect(skillsIndex).toBeGreaterThan(experienceIndex)
         })
 

@@ -94,12 +94,14 @@ export default function App() {
                     </div>
                 </header>
 
-                <Routes>
-                    <Route path="/" element={<HomePage portfolio={portfolio} />} />
-                    <Route path="/experience" element={<ExperiencePage portfolio={portfolio} />} />
-                    <Route path="/blog" element={<BlogPage portfolio={portfolio} />} />
-                    <Route path="/contact" element={<ContactPage portfolio={portfolio} />} />
-                </Routes>
+                <div className="page-content">
+                    <Routes>
+                        <Route path="/" element={<HomePage portfolio={portfolio} />} />
+                        <Route path="/experience" element={<ExperiencePage portfolio={portfolio} />} />
+                        <Route path="/blog" element={<BlogPage portfolio={portfolio} />} />
+                        <Route path="/contact" element={<ContactPage portfolio={portfolio} />} />
+                    </Routes>
+                </div>
 
                 <footer className="site-footer">
                     <p>&copy; {new Date().getFullYear()} {portfolio.name}</p>

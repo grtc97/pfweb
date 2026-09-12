@@ -6,13 +6,15 @@ Location: Pune, Maharashtra, India
 • Senior Data Scientist with 4+ years of experience building Generative AI and Data Science systems with real business impact. 
 • Specialized in building RAG chatbots and agentic automation workflows.
 • Working on freelance projects in Generative AI and Data Science, helping organizations build production-ready AI solutions that solve real business problems.
+• Graduated with M.S. in Computer Science from the University of Minnesota, Twin Cities, and B.Tech. in Instrumentation and Control Engineering from Vishwakarma Institute of Technology, Pune.
+
 
 # Education
 1. University of Minnesota, Twin Cities
 M.S., Computer Science · (2013 - 2015)
 
 2. Vishwakarma Institute of Technology, Pune
-B.Tech., Instrumentation and Control Engg · (2008 - 2012)
+B.Tech., Instrumentation and Control Engineering · (2008 - 2012)
 
 # Projects
 
@@ -65,7 +67,7 @@ Pune, Maharashtra, India
 • Conducted feature engineering and customer segmentation
 • Led product analysis and business development initiatives
 
-## Arizona Satte University
+## Arizona State University
 Computer Science Ph.D. Student (Discontinued)
 2017 - 2019
 Tempe, AZ, USA

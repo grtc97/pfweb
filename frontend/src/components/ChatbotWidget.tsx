@@ -18,14 +18,26 @@ const GREETING_MESSAGE: ChatMessage = {
 
 type BackendStatus = 'checking' | 'online' | 'degraded' | 'offline'
 
+const MOBILE_BREAKPOINT_QUERY = '(max-width: 1024px)'
+
 function describeChatError(error: unknown): string {
     return error instanceof Error ? error.message : 'The chatbot is unavailable right now. Please try again.'
+}
+
+function isMobileViewport(): boolean {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+        return false
+    }
+    return window.matchMedia(MOBILE_BREAKPOINT_QUERY).matches
 }
 
 export function ChatbotWidget() {
     const [input, setInput] = useState('')
     const [isLoading, setIsLoading] = useState(false)
-    const [isMinimized, setIsMinimized] = useState(false)
+    // Starts collapsed into the floating button on mobile, so the chatbot
+    // doesn't cover the portfolio content the moment the page loads; desktop
+    // keeps its existing open-by-default behavior.
+    const [isMinimized, setIsMinimized] = useState(isMobileViewport)
     const [backendStatus, setBackendStatus] = useState<BackendStatus>('checking')
     const [messages, setMessages] = useState<ChatMessage[]>([GREETING_MESSAGE])
     const messagesEndRef = useRef<HTMLDivElement | null>(null)
@@ -123,6 +135,14 @@ export function ChatbotWidget() {
     return (
         <div className={shellClassName}>
             <section className={`chatbot-panel${isMinimized ? ' chatbot-panel-minimized' : ''}`} aria-label="Portfolio chatbot">
+                {isMinimized ? (
+                    <button type="button" className="chatbot-fab" aria-label="Open chatbot" onClick={handleMaximize}>
+                        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+                        </svg>
+                    </button>
+                ) : null}
+
                 <div className="chatbot-header">
                     <div className="chatbot-title-wrapper">
                         <button type="button" className="chatbot-title-button" onClick={handleMaximize}>
