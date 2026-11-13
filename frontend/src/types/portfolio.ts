@@ -55,6 +55,8 @@ export type ContactMessage = {
 
 export type ContactResponse = {
     message: string
+    /** False when the backend is in mock mode and no email was actually sent. */
+    delivered?: boolean
 }
 
 export type HealthResponse = {
@@ -63,4 +65,6 @@ export type HealthResponse = {
     chat_content_loaded: boolean
     chat_content_file_exists: boolean
     openai_configured: boolean
+    contact_mode?: string
+    contact_configured?: boolean
 }

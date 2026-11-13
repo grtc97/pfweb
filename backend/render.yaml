@@ -4,21 +4,33 @@ services:
     env: python
     plan: free
     rootDir: backend
-    buildCommand: pip install -r requirements.txt
+    # requirements.txt lives at the project root (one level above rootDir).
+    buildCommand: pip install -r ../requirements.txt
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /api/health
     envVars:
+      - key: ENVIRONMENT
+        value: production
       - key: OPENAI_API_KEY
         sync: false
       - key: OPENAI_MODEL
-        value: gpt-4o-mini
+        value: gpt-6-luna
+      - key: OPENAI_MAX_COMPLETION_TOKENS
+        value: "2000"
       - key: CHAT_MODE
         value: openai
       - key: CHAT_RATE_LIMIT
         value: "10"
+      # Render's free plan blocks outbound SMTP, so email goes via Resend's
+      # HTTPS API. CONTACT_EMAIL_TO must be the Resend account's own email
+      # while CONTACT_EMAIL_FROM is the shared onboarding@resend.dev sender.
       - key: CONTACT_MODE
-        value: smtp
+        value: resend
       - key: CONTACT_EMAIL_TO
+        sync: false
+      - key: CONTACT_EMAIL_FROM
+        value: onboarding@resend.dev
+      - key: RESEND_API_KEY
         sync: false
       - key: CONTACT_RATE_LIMIT
         value: "5"

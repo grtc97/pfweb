@@ -1,8 +1,8 @@
 :root {
-    /* Palette adapted from visitqatar.page: warm cream page, deep teal as the
-       primary accent used consistently across the site, including the
-       chatbot module (its border uses the darker teal shade for a touch of
-       distinction without introducing an unrelated color). */
+    /* Website palette: warm cream page with deep teal as the primary accent,
+       used across every portfolio page. The chatbot deliberately does NOT use
+       it — it has its own "app window" palette (see --cb-* below) so it
+       reads as a separate window floating over the site. */
     color: #3a3836;
     background: #faf8f4;
     font-synthesis: none;
@@ -21,8 +21,30 @@
     --neutral-bg: #e2e0dc;
     --neutral-border: #d6d3ce;
     --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    --chatbot-border: var(--accent-strong);
-    --chatbot-border-width: 10px;
+
+    /* Chatbot window palette: light-blue title bar and body with a warm amber
+       accent. Amber complements the site's teal without repeating it, and
+       the blue sets the chat apart from the cream page so it reads as its
+       own window. The --cb-frame-* tokens style the title bar only. */
+    --cb-frame: #e3eefa;
+    --cb-frame-text: #1f2a3a;
+    --cb-frame-muted: #4f6079;
+    --cb-frame-border: #b6cde8;
+    --cb-frame-hover: #d2e3f6;
+    --cb-bg: #e3eefa;
+    --cb-surface: #ffffff;
+    --cb-surface-hover: #d2e3f6;
+    --cb-border: #b6cde8;
+    --cb-text: #1f2a3a;
+    --cb-muted: #4f6079;
+    --cb-accent: #f2a541;
+    --cb-accent-strong: #e07f3a;
+    --cb-on-accent: #1d1305;
+    --cb-shadow: 0 18px 48px rgba(15, 23, 36, 0.25), 0 4px 12px rgba(15, 23, 36, 0.15);
+    --cb-radius: 16px;
+    /* Fits the longest label, "Checking", at the scaled font size below. */
+    --cb-status-width: clamp(44px, 13.6cqi, 96px);
+    --cb-gap: 20px;
 }
 
 * {
@@ -31,12 +53,14 @@
 
 html {
     scroll-behavior: smooth;
+    overflow-x: hidden;
 }
 
 body {
     margin: 0;
     min-width: 320px;
     min-height: 100vh;
+    overflow-x: hidden;
     color: var(--text);
     font-family: 'Trebuchet MS', 'Verdana', 'Segoe UI', sans-serif;
     background: var(--page);
@@ -82,19 +106,27 @@ button {
 
 .sidebar {
     /* Pinned to the viewport (not the grid) so it stays put while the page
-       itself scrolls — see .main-content below for why. Right/bottom/width
-       reproduce the same visual size and position it had as a bottom-aligned
-       grid item in the (now-unused) right-hand column. */
+       itself scrolls — see .main-content below for why. It floats inset from
+       the window edges with rounded corners and a deep shadow so it looks
+       like a separate window sitting over the site, not part of the page. */
     position: fixed;
-    right: 0;
-    bottom: 0;
-    width: 35vw;
-    background: var(--card);
-    border: var(--chatbot-border-width) solid var(--chatbot-border);
+    right: var(--cb-gap);
+    bottom: var(--cb-gap);
+    width: calc(35vw - var(--cb-gap));
+    background: var(--cb-bg);
+    border: 1px solid var(--cb-border);
+    border-radius: var(--cb-radius);
     padding: 0;
-    height: 75vh;
+    /* 82.5vh = the original 75vh + 10%, for more conversation space. */
+    height: 82.5vh;
     overflow: hidden;
-    box-shadow: var(--shadow);
+    box-shadow: var(--cb-shadow);
+    color: var(--cb-text);
+    /* Size container: title-bar elements are sized in cqi (percent of this
+       window's width) so the whole bar scales proportionally and always fits
+       on one row. */
+    container-type: inline-size;
+    container-name: chatbot;
     display: flex;
     flex-direction: column;
     z-index: 10;
@@ -157,10 +189,12 @@ button {
     line-height: 1.1;
 }
 
+/* Same look as the .headline line above it (body text colour, 1rem);
+   only the spacing differs. */
 .location {
-    color: var(--muted);
+    color: var(--text);
     margin: 8px 0 0;
-    font-size: 0.95rem;
+    font-size: 1rem;
 }
 
 .site-nav {
@@ -455,6 +489,12 @@ button {
     color: #1f5f24;
 }
 
+.contact-feedback-notice {
+    background: #fff4e5;
+    border: 1px solid #f5d3a1;
+    color: #7a4b00;
+}
+
 .contact-feedback-error {
     background: #fdecec;
     border: 1px solid #f0b4b4;
@@ -479,6 +519,11 @@ button {
     transform: translateY(-1px);
 }
 
+/* ---------------------------------------------------------------------------
+   Chatbot window. Everything below uses only the --cb-* palette so the chat
+   looks like its own application window, independent of the website theme.
+   --------------------------------------------------------------------------- */
+
 .chatbot-shell {
     display: flex;
     flex-direction: column;
@@ -492,19 +537,32 @@ button {
     height: 100%;
     display: grid;
     grid-template-rows: auto 1fr auto;
-    gap: 12px;
-    padding: 12px;
+    /* Vertical spacing is deliberately tight throughout the chat window so
+       more of the conversation fits without scrolling. */
+    gap: 6px;
+    padding: 0 0 6px;
     border-radius: 0;
-    background: var(--page);
+    background: var(--cb-bg);
+    color: var(--cb-text);
     border: none;
     box-shadow: none;
 }
 
+.chatbot-panel > :not(.chatbot-header):not(.chatbot-fab):not(.suggested-prompts) {
+    margin-inline: 12px;
+}
+
+/* Title bar: a darker strip across the top, like an OS window's chrome. */
+/* Everything on ONE row. All sizes are in cqi (1cqi = 1% of the chat
+   window's width) so the bar shrinks/grows proportionally with the window. */
 .chatbot-header {
     display: flex;
     justify-content: space-between;
-    gap: 12px;
+    gap: 1.2cqi;
     align-items: center;
+    padding: 5px 1.6cqi;
+    background: var(--cb-frame);
+    border-bottom: 2px solid var(--cb-frame-border);
 }
 
 .chatbot-header-actions {
@@ -515,70 +573,75 @@ button {
 .chatbot-header-actions-row {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 1.2cqi;
 }
 
 .chatbot-controls {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 0.4cqi;
 }
 
 .chatbot-control-button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 34px;
-    height: 34px;
+    width: clamp(20px, 6.2cqi, 44px);
+    height: clamp(20px, 6.2cqi, 44px);
     border-radius: 6px;
+    flex-shrink: 0;
     background: transparent;
-    color: var(--text);
-    font-size: 1.3rem;
+    color: var(--cb-frame-muted);
+    font-size: clamp(0.85rem, 4.6cqi, 1.7rem);
     line-height: 1;
     cursor: pointer;
 }
 
 .chatbot-control-button:hover {
-    background: rgba(0, 98, 123, 0.1);
+    background: var(--cb-frame-hover);
+    color: var(--cb-frame-text);
 }
 
 .chatbot-clear-button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    height: 29px;
-    padding: 0 11px;
+    height: clamp(18px, 5.4cqi, 38px);
+    padding: 0 clamp(5px, 1.8cqi, 13px);
+    flex-shrink: 0;
+    white-space: nowrap;
     background: transparent;
-    border: 1px solid var(--accent-soft);
-    color: var(--text);
+    border: 1px solid var(--cb-frame-border);
+    color: var(--cb-frame-muted);
     border-radius: 999px;
-    font-size: 0.79rem;
+    font-size: clamp(9px, 2.75cqi, 18px);
     font-weight: 700;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.02em;
     cursor: pointer;
 }
 
 .chatbot-clear-button:hover {
-    background: var(--accent-soft-bg);
+    background: var(--cb-frame-hover);
+    color: var(--cb-frame-text);
 }
 
 .chatbot-panel-minimized {
     grid-template-rows: auto;
     gap: 0;
+    padding: 0;
     align-content: start;
 }
 
-/* Hidden on desktop, where minimizing collapses to the header bar instead —
+/* Hidden on desktop, where minimizing collapses to the title bar instead —
    shown only on mobile (see the max-width: 1024px block below), where it
    replaces the whole panel with a small floating button. */
 .chatbot-fab {
     display: none;
 }
 
-/* The open chat window is always exactly 75vh — it never grows beyond that
+/* The open chat window is always exactly 82.5vh — it never grows beyond that
    (e.g. via maximize). Minimizing is the one case allowed to shrink it below
-   75vh, down to just the header, so the minimize button visibly collapses
-   the window instead of leaving an empty gray box at full height. */
+   82.5vh, down to just the title bar. */
 .sidebar:has(.chatbot-minimized) {
     height: auto;
 }
@@ -591,16 +654,17 @@ button {
 }
 
 .chatbot-title-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    display: block;
     max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     background: transparent;
-    border: 1px solid var(--accent-soft);
+    border: none;
     border-radius: 999px;
-    padding: 6px 8px;
-    color: var(--text);
-    font-size: 1rem;
+    padding: 3px 0.4cqi;
+    color: var(--cb-frame-text);
+    font-size: clamp(9px, 3.15cqi, 22px);
     font-weight: 700;
     text-align: center;
     line-height: 1.25;
@@ -609,86 +673,151 @@ button {
 }
 
 .chatbot-title-button:hover {
-    background: var(--accent-soft-bg);
+    color: #b45309;
 }
 
+/* Status colors tuned for the light title bar: tinted backgrounds, dark text.
+   Fixed width (sized for the longest label, "Checking") so switching between
+   Checking / Live / Limited / Offline never resizes or reflows the title,
+   CLEAR or the window controls. */
 .status-pill {
+    flex-shrink: 0;
+    box-sizing: border-box;
+    width: var(--cb-status-width);
     margin: 0;
-    padding: 6px 10px;
+    padding: 0.6cqi 0;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
     border-radius: 999px;
-    background: #e8f0e8;
-    color: #2d7a2d;
+    background: rgba(22, 163, 74, 0.14);
+    color: #166534;
     font-weight: 600;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.16em;
+    font-size: clamp(8px, 2.6cqi, 17px);
+    letter-spacing: 0.02em;
 }
 
 .status-pill.status-checking {
-    background: #eef2f7;
-    color: #4a5568;
+    background: rgba(154, 168, 191, 0.16);
+    color: var(--cb-frame-muted);
 }
 
 .status-pill.status-degraded {
-    background: #fff4e5;
-    color: #9a6700;
+    background: rgba(242, 165, 65, 0.22);
+    color: #8a4b00;
 }
 
 .status-pill.status-offline {
-    background: #fdecec;
+    background: rgba(220, 38, 38, 0.12);
     color: #b42318;
 }
 
 .chatbot-messages {
     display: grid;
     align-content: start;
-    gap: 10px;
+    gap: 5px;
     overflow: auto;
     padding-right: 4px;
+    scrollbar-color: var(--cb-border) transparent;
 }
 
 .chat-bubble {
     max-width: 90%;
-    padding: 12px 14px;
-    border-radius: 16px;
-    line-height: 1.5;
+    /* Vertical padding kept small so more of the conversation fits on screen. */
+    padding: 3px 14px;
+    border-radius: 12px;
+    /* 1.25 = half the inter-line gap of the old 1.5 (0.25em vs 0.5em). */
+    line-height: 1.25;
 }
 
 .chat-bubble.user {
     margin-left: auto;
-    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
-    color: #ffffff;
+    background: linear-gradient(135deg, var(--cb-accent) 0%, var(--cb-accent-strong) 100%);
+    color: var(--cb-on-accent);
+    border-bottom-right-radius: 4px;
 }
 
+/* Answers use the full width of the conversation area; questions keep the
+   90% cap so they stay visually distinct on the right. */
 .chat-bubble.assistant {
-    background: var(--neutral-bg);
-    border: 1px solid var(--neutral-border);
-    color: var(--text);
+    max-width: 100%;
+    background: var(--cb-surface);
+    border: 1px solid var(--cb-border);
+    color: var(--cb-text);
+    border-bottom-left-radius: 4px;
 }
 
+/* Formatted answers (see FormattedMessage.tsx): tight spacing between
+   paragraphs and list items to match the compact chat layout. */
+.chat-bubble p,
+.chat-bubble ol,
+.chat-bubble ul {
+    margin: 0;
+}
+
+.chat-bubble p + p,
+.chat-bubble p + ol,
+.chat-bubble p + ul,
+.chat-bubble ol + p,
+.chat-bubble ul + p,
+.chat-heading {
+    margin-top: 0.3em;
+}
+
+.chat-bubble ol,
+.chat-bubble ul {
+    padding-left: 1.3em;
+}
+
+.chat-bubble li + li {
+    margin-top: 0.15em;
+}
+
+.chat-bubble strong {
+    font-weight: 700;
+}
+
+.chat-bubble a {
+    color: #0b5cad;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+/* Question box and Send side by side (Send on the right, same height as the
+   box) so the form takes one row instead of two. */
 .chatbot-form {
     display: grid;
-    gap: 12px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: stretch;
+    gap: 6px;
 }
 
+/* Full-width divider above the suggested questions, matching the line under
+   the title bar, to separate them from the conversation. */
 .suggested-prompts {
     display: flex;
     flex-wrap: wrap;
-    gap: 4px;
+    gap: 2px 4px;
+    padding: 6px 12px 0;
+    border-top: 2px solid var(--cb-frame-border);
 }
 
 .prompt-chip {
-    border: 1px solid var(--accent-soft);
-    background: var(--card);
-    color: var(--text);
+    border: 1px solid var(--cb-border);
+    background: transparent;
+    color: var(--cb-muted);
     border-radius: 999px;
-    padding: 8px 12px;
+    padding: 2px 12px;
     font-size: 0.82rem;
+    line-height: 1.25;
     cursor: pointer;
 }
 
 .prompt-chip:hover:not(:disabled) {
-    background: var(--accent-soft-bg);
+    background: var(--cb-surface-hover);
+    border-color: var(--cb-accent);
+    color: var(--cb-text);
 }
 
 .prompt-chip:disabled {
@@ -710,20 +839,36 @@ button {
 
 .chatbot-form textarea {
     resize: vertical;
-    min-height: 88px;
+    /* Two lines tall (2 x line-height + vertical padding + border). Longer
+       questions scroll inside the box; it can also be dragged up to 180px. */
+    line-height: 1.25;
+    height: calc(2 * 1.25em + 12px + 2px);
+    min-height: calc(2 * 1.25em + 12px + 2px);
+    overflow-y: auto;
     max-height: 180px;
     width: 100%;
-    color: var(--text);
-    background: var(--page);
-    border: 1px solid var(--neutral-border);
-    border-radius: 16px;
-    padding: 12px 14px;
+    color: var(--cb-text);
+    background: var(--cb-surface);
+    border: 1px solid var(--cb-border);
+    border-radius: 12px;
+    padding: 6px 14px;
     outline: none;
 }
 
+.chatbot-form textarea::placeholder {
+    color: var(--cb-muted);
+}
+
 .chatbot-form textarea:focus {
-    border-color: var(--accent);
-    background: var(--card);
+    border-color: var(--cb-accent);
+    box-shadow: 0 0 0 3px rgba(242, 165, 65, 0.2);
+}
+
+.chatbot-form .primary-button {
+    padding: 6px 18px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--cb-accent) 0%, var(--cb-accent-strong) 100%);
+    color: var(--cb-on-accent);
 }
 
 .primary-button:disabled {
@@ -733,7 +878,13 @@ button {
 
 @media (max-width: 1024px) {
     .app-layout {
-        grid-template-columns: 1fr;
+        /* minmax(0, 1fr), not a bare 1fr — a bare 1fr's automatic minimum
+           size is the content's min-content, so a single long unbreakable
+           word/token anywhere on the page (e.g. in Experience or Projects)
+           forces the whole column wider than the viewport, causing
+           horizontal scroll. The desktop grid already avoids this the same
+           way (see the two-column rule above). */
+        grid-template-columns: minmax(0, 1fr);
         min-height: 100vh;
     }
 
@@ -741,28 +892,45 @@ button {
         grid-column: 1;
         grid-row: 2;
         /* Only needs to clear the small floating chat button now, not the
-           full 75vh sheet — the chat starts collapsed on mobile and only
+           full-height chat window — the chat starts collapsed on mobile and only
            covers the screen temporarily, while the user has it open. */
         padding: 40px 56px 96px;
     }
 
+    /* Open chat is a full-screen takeover on mobile (not a partial sheet) —
+       the only way back to the portfolio pages is to minimize or close it,
+       same as the reference site's mobile chat behavior. */
     .sidebar {
+        top: 0;
         left: 0;
+        right: 0;
+        bottom: 0;
         width: 100%;
+        height: 100dvh;
+        border: none;
+        border-radius: 0;
+        z-index: 20;
     }
 
     /* Collapsed on mobile: shrink the whole sidebar down to a small floating
-       circle button in the corner instead of the full-width header bar used
+       pill button in the corner instead of the full-width header bar used
        on desktop, so the chatbot doesn't sit as a permanent bar on screen. */
     .sidebar:has(.chatbot-minimized) {
+        /* top: auto undoes the full-screen top: 0 above — with both top and
+           bottom set, the pill would stick to the top of the screen. */
+        top: auto;
         left: auto;
         right: 16px;
         bottom: 16px;
-        width: 64px;
-        height: 64px;
+        width: auto;
+        height: auto;
         border: none;
         box-shadow: none;
         background: transparent;
+        overflow: visible;
+        /* Sized by the pill button itself here (width: auto), so it must not
+           be a size container — that would collapse it to zero width. */
+        container-type: normal;
     }
 
     .chatbot-panel-minimized {
@@ -777,46 +945,17 @@ button {
     .chatbot-fab {
         display: flex;
         align-items: center;
-        justify-content: center;
-        width: 100%;
-        height: 100%;
-        border-radius: 50%;
-        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
-        color: #ffffff;
-        box-shadow: var(--shadow);
+        gap: 8px;
+        padding: 14px 20px;
+        border-radius: 999px;
+        background: linear-gradient(135deg, var(--cb-accent) 0%, var(--cb-accent-strong) 100%);
+        color: var(--cb-on-accent);
+        font-weight: 700;
+        font-size: 1rem;
+        box-shadow: var(--cb-shadow);
         cursor: pointer;
     }
 
-    /* Larger touch targets than the desktop 34px controls, per mobile a11y
-       guidance (roughly 44px minimum). */
-    .chatbot-control-button {
-        width: 44px;
-        height: 44px;
-    }
-
-    /* The title button and the status/clear/controls row no longer fit on
-       one line at mobile widths (especially with the larger touch targets
-       above) — stack the title on its own full-width row instead of
-       squeezing it into a sliver next to the rest, which otherwise wrapped
-       it across a dozen lines and pushed the message list out of view. */
-    .chatbot-header {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 8px;
-    }
-
-    .chatbot-title-wrapper {
-        flex: none;
-        width: 100%;
-    }
-
-    .chatbot-header-actions {
-        width: 100%;
-    }
-
-    .chatbot-header-actions-row {
-        justify-content: space-between;
-    }
 }
 
 @media (max-width: 640px) {

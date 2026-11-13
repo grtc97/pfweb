@@ -4,6 +4,19 @@ import type { ChatMessage, ChatResponse, ContactMessage, ContactResponse, Health
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://127.0.0.1:8000'
 const REQUEST_TIMEOUT_MS = 60000
 
+export const RATE_LIMIT_MESSAGE = "You're sending messages too quickly. Please wait a minute and try again."
+
+/** An error response from the backend (the server was reachable). */
+export class ApiError extends Error {
+    readonly status: number
+
+    constructor(message: string, status: number) {
+        super(message)
+        this.name = 'ApiError'
+        this.status = status
+    }
+}
+
 type ApiErrorPayload = {
     detail?: string | Array<{ msg?: string }>
 }
@@ -55,9 +68,11 @@ async function apiRequest<T>(path: string, options: RequestInit | undefined, fal
     const data = await parseJsonResponse<T>(response, path, fallbackErrorMessage)
 
     if (!response.ok) {
-        const message = formatApiError(data ?? {}, fallbackErrorMessage)
+        // 429 comes from the rate limiter as {"error": "..."}, not {"detail": ...},
+        // so it needs its own friendly message.
+        const message = response.status === 429 ? RATE_LIMIT_MESSAGE : formatApiError(data ?? {}, fallbackErrorMessage)
         logError(`${path} returned ${response.status}`, message)
-        throw new Error(message)
+        throw new ApiError(message, response.status)
     }
 
     return data as T

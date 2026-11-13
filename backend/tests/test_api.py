@@ -1,3 +1,5 @@
+"""End-to-end API tests using FastAPI's TestClient (chat in mock mode)."""
+
 import os
 
 import pytest
@@ -27,6 +29,8 @@ def test_health_check() -> None:
     assert payload["status"] in {"ok", "degraded"}
     assert payload["chat_mode"] == "mock"
     assert payload["chat_content_loaded"] is True
+    assert "contact_mode" in payload
+    assert isinstance(payload["contact_configured"], bool)
 
 
 def test_chat_mock_mode() -> None:
@@ -53,6 +57,25 @@ def test_chat_rejects_message_too_long() -> None:
     assert response.status_code == 422
 
 
+def test_chat_accepts_a_long_conversation_by_keeping_recent_history(monkeypatch: pytest.MonkeyPatch) -> None:
+    # Regression: ~10 questions used to fail with "List should have at most 20
+    # items after validation, not 21" because the full history was rejected.
+    received: dict = {}
+
+    async def _capture(message: str, history: list) -> str:
+        received["history"] = history
+        return "ok"
+
+    monkeypatch.setattr(chat_routes, "generate_chat_response", _capture)
+    history = [{"role": "user" if i % 2 == 0 else "assistant", "content": f"m{i}"} for i in range(31)]
+
+    response = client.post("/api/chat", json={"message": "Next question", "history": history})
+
+    assert response.status_code == 200
+    assert len(received["history"]) == 20
+    assert received["history"][-1].content == "m30"
+
+
 def test_chat_rejects_missing_message_field() -> None:
     response = client.post("/api/chat", json={"history": []})
     assert response.status_code == 422
@@ -69,7 +92,9 @@ def test_chat_returns_503_when_provider_unavailable(monkeypatch: pytest.MonkeyPa
     assert "temporarily unavailable" in response.json()["detail"]
 
 
-def test_contact_form_mock_mode() -> None:
+def test_contact_form_mock_mode_does_not_claim_delivery(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(contact_routes, "send_contact_email", lambda **_kwargs: False)
+
     response = client.post(
         "/api/contact",
         json={
@@ -81,7 +106,24 @@ def test_contact_form_mock_mode() -> None:
     )
     assert response.status_code == 200
     payload = response.json()
-    assert "sent successfully" in payload["message"]
+    assert payload["delivered"] is False
+    assert "no email was sent" in payload["message"]
+
+
+def test_contact_form_reports_success_when_delivered(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(contact_routes, "send_contact_email", lambda **_kwargs: True)
+
+    response = client.post(
+        "/api/contact",
+        json={
+            "name": "Jane Doe",
+            "email": "jane@example.com",
+            "subject": "Hello",
+            "message": "Test message",
+        },
+    )
+    assert response.status_code == 200
+    assert response.json() == {"message": "Your message has been sent successfully.", "delivered": True}
 
 
 def test_contact_rejects_invalid_email() -> None:

@@ -1,3 +1,5 @@
+"""FastAPI entry point: builds the app and wires up middleware, routes and error handlers."""
+
 import logging
 
 from fastapi import FastAPI, Request
@@ -12,11 +14,12 @@ from app.api.routes.contact import router as contact_router
 from app.api.routes.health import router as health_router
 from app.core.config import settings
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 logger = logging.getLogger("webpf")
 
 
 def _register_error_handlers(app: FastAPI) -> None:
+    """Return JSON (never a traceback) for rate limits and unexpected errors."""
     app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
     @app.exception_handler(Exception)
@@ -26,6 +29,7 @@ def _register_error_handlers(app: FastAPI) -> None:
 
 
 def _register_middleware(app: FastAPI) -> None:
+    """Attach rate limiting and CORS for the configured frontend origins."""
     app.add_middleware(SlowAPIMiddleware)
     app.add_middleware(
         CORSMiddleware,
@@ -37,6 +41,7 @@ def _register_middleware(app: FastAPI) -> None:
 
 
 def _register_routes(app: FastAPI) -> None:
+    """Mount the health, chat and contact routers under /api."""
     app.include_router(health_router, prefix="/api", tags=["health"])
     app.include_router(chat_router, prefix="/api", tags=["chat"])
     app.include_router(contact_router, prefix="/api", tags=["contact"])
@@ -47,6 +52,7 @@ def _register_routes(app: FastAPI) -> None:
 
 
 def create_app() -> FastAPI:
+    """Build and configure the FastAPI application."""
     app = FastAPI(title=settings.app_name, version="1.0.0")
     app.state.limiter = limiter
 

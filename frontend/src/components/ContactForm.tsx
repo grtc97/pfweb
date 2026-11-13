@@ -2,6 +2,7 @@ import { FormEvent, useMemo, useState } from 'react'
 
 import { sendContactMessage } from '../services/api'
 import { logError } from '../services/logger'
+import type { ContactResponse } from '../types/portfolio'
 
 type FormState = {
     name: string
@@ -35,6 +36,13 @@ function isWithinLimit(field: keyof FormState, value: string): boolean {
     return value.length <= FIELD_LIMITS[field]
 }
 
+type FeedbackType = 'success' | 'notice' | 'error'
+
+/** A response is only a real success when the backend confirms delivery. */
+function feedbackTypeFor(response: ContactResponse): FeedbackType {
+    return response.delivered === false ? 'notice' : 'success'
+}
+
 function describeSubmitError(error: unknown): string {
     return error instanceof Error ? error.message : 'Unable to send your message right now.'
 }
@@ -42,7 +50,7 @@ function describeSubmitError(error: unknown): string {
 export function ContactForm() {
     const [form, setForm] = useState<FormState>(EMPTY_FORM)
     const [isSubmitting, setIsSubmitting] = useState(false)
-    const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+    const [feedback, setFeedback] = useState<{ type: FeedbackType; text: string } | null>(null)
 
     const canSubmit = useMemo(
         () =>
@@ -79,7 +87,7 @@ export function ContactForm() {
                 message: form.message.trim(),
             })
             setForm(EMPTY_FORM)
-            setFeedback({ type: 'success', text: response.message })
+            setFeedback({ type: feedbackTypeFor(response), text: response.message })
         } catch (error) {
             logError('Contact form submission failed', error)
             setFeedback({ type: 'error', text: describeSubmitError(error) })

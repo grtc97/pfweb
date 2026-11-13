@@ -52,6 +52,23 @@ describe('ContactForm', () => {
         })
     })
 
+    it('shows a test-mode notice, not a success, when the backend did not deliver the email', async () => {
+        mockedApi.sendContactMessage.mockResolvedValue({
+            message: 'Message received in test mode — no email was sent.',
+            delivered: false,
+        })
+
+        const user = userEvent.setup()
+        render(<ContactForm />)
+
+        await fillForm(user)
+        await user.click(screen.getByRole('button', { name: /send message/i }))
+
+        const feedback = await screen.findByText('Message received in test mode — no email was sent.')
+        expect(feedback).toHaveClass('contact-feedback-notice')
+        expect(feedback).not.toHaveClass('contact-feedback-success')
+    })
+
     it('shows an error message and keeps the entered data when submission fails', async () => {
         mockedApi.sendContactMessage.mockRejectedValue(new Error('Unable to send your message right now.'))
 

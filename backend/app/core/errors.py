@@ -1,3 +1,5 @@
+"""Helpers that turn service exceptions into HTTP error responses."""
+
 from typing import NoReturn
 
 from fastapi import HTTPException

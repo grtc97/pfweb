@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { pingBackend, sendChatMessage, sendContactMessage } from './api'
+import { ApiError, RATE_LIMIT_MESSAGE, pingBackend, sendChatMessage, sendContactMessage } from './api'
 
-function mockFetchOnce(response: { ok: boolean; json: () => Promise<unknown> }) {
+function mockFetchOnce(response: { ok: boolean; status?: number; json: () => Promise<unknown> }) {
     globalThis.fetch = vi.fn().mockResolvedValue(response as Response)
 }
 
@@ -15,6 +15,16 @@ describe('api service', () => {
         mockFetchOnce({ ok: false, json: async () => ({ detail: 'Chatbot request failed' }) })
 
         await expect(sendChatMessage('hi', [])).rejects.toThrow('Chatbot request failed')
+    })
+
+    it('turns a 429 rate-limit response into a friendly "wait a minute" message', async () => {
+        mockFetchOnce({ ok: false, status: 429, json: async () => ({ error: 'Rate limit exceeded: 10 per 1 minute' }) })
+
+        const error = await sendChatMessage('hi', []).catch((caught: unknown) => caught)
+
+        expect(error).toBeInstanceOf(ApiError)
+        expect((error as ApiError).status).toBe(429)
+        expect((error as ApiError).message).toBe(RATE_LIMIT_MESSAGE)
     })
 
     it('joins pydantic validation-error arrays into a readable message', async () => {
